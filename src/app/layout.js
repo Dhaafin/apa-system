@@ -23,13 +23,17 @@ export const metadata = {
   description: "Kapala - SMK Kimia PGRI Serang",
 };
 
+import { FlashMessageProvider } from "@/context/FlashMessageContext";
+
 export default function RootLayout({ children }) {
   return (
     <html
       lang="id"
       className={`${poppins.variable} ${outfit.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className={`min-h-full flex flex-col ${poppins.className}`}>{children}</body>
+      <body className={`min-h-full flex flex-col ${poppins.className}`}>
+        <FlashMessageProvider>{children}</FlashMessageProvider>
+      </body>
     </html>
   );
 }

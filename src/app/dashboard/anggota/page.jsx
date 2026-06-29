@@ -8,6 +8,7 @@ import Image from "next/image";
 import Modal from "@/components/atoms/Modal";
 import Input from "@/components/atoms/Input";
 import CustomDropdown from "@/components/atoms/CustomDropdown";
+import { useFlashMessage } from "@/context/FlashMessageContext";
 
 const KELAS_OPTIONS = [
   "X KIMIA 1", "X KIMIA 2", "X KIMIA 3", "X KIMIA 4",
@@ -16,6 +17,7 @@ const KELAS_OPTIONS = [
 ];
 
 export default function AnggotaPage() {
+  const showFlashMessage = useFlashMessage();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -70,10 +72,18 @@ export default function AnggotaPage() {
         body: JSON.stringify({ studentId, action, adminEmail }),
       });
       if (response.ok) {
+        if (action === "APPROVE") {
+          showFlashMessage("success", "Pendaftaran siswa berhasil disetujui!");
+        } else {
+          showFlashMessage("warning", "Pendaftaran siswa telah ditolak.");
+        }
         fetchStudents(); // Refresh data
+      } else {
+        showFlashMessage("error", "Gagal memperbarui status pendaftaran.");
       }
     } catch (err) {
       console.error(err);
+      showFlashMessage("error", "Terjadi kesalahan koneksi.");
     }
   };
 
@@ -93,6 +103,7 @@ export default function AnggotaPage() {
       }
       setFormData({ name: "", email: "", password: "", className: "" });
       setIsModalOpen(false);
+      showFlashMessage("success", "Anggota baru berhasil dibuat dan langsung diaktifkan!");
       fetchStudents();
     } catch (err) {
       setFormError(err.message);
