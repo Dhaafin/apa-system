@@ -236,12 +236,9 @@ export default function AnggotaPage() {
         {/* Content wrapper */}
         <div className="relative z-10 w-full p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">👥</span>
-              <Text variant="h2" className="text-white font-extrabold tracking-tight">
-                Manajemen Anggota
-              </Text>
-            </div>
+            <Text variant="h2" className="text-white font-extrabold tracking-tight font-heading">
+              Manajemen Anggota
+            </Text>
             <Text variant="body" color="muted" className="text-slate-300 max-w-lg">
               Daftar lengkap siswa pencinta alam aktif dan persetujuan registrasi anggota baru.
             </Text>
