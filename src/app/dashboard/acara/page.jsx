@@ -445,13 +445,13 @@ export default function AcaraPage() {
         <div className="p-12 text-center text-zinc-500 font-medium bg-white rounded-3xl border border-zinc-200">
           Memuat daftar acara...
         </div>
-      ) : activities.filter((a) => !a.isExpedition).length === 0 ? (
+      ) : activities.length === 0 ? (
         <div className="p-12 text-center text-zinc-400 font-medium bg-white rounded-3xl border border-zinc-200">
           Belum ada jadwal acara yang terdaftar.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {activities.filter((a) => !a.isExpedition).map((activity) => {
+          {activities.map((activity) => {
             const formattedDate = new Date(activity.date).toLocaleDateString("id-ID", {
               weekday: "long",
               year: "numeric",
