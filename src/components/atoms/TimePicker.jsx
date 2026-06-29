@@ -30,10 +30,16 @@ export default function TimePicker({
           type="time"
           value={value}
           onChange={onChange}
+          onClick={(e) => {
+            try {
+              e.target.showPicker();
+            } catch (err) {}
+          }}
           required={required}
           className={`w-full px-4 py-3 pl-11 text-sm rounded-xl border bg-white text-zinc-900 border-zinc-200 focus:outline-none focus:ring-2 focus:ring-[#004d3d] focus:border-transparent transition-all placeholder:text-zinc-400 dark:bg-zinc-950 dark:text-white dark:border-zinc-800 cursor-pointer ${
             error ? "border-red-500 focus:ring-red-500" : ""
           } ${inputClassName}`}
+          style={{ colorScheme: inputClassName.includes("text-white") ? "dark" : "light" }}
           {...props}
         />
         {/* Clock SVG Icon */}
