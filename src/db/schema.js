@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, pgEnum, integer } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("user_role", ["GURU", "SISWA"]);
 export const statusEnum = pgEnum("user_status", ["PENDING", "APPROVED", "REJECTED"]);
@@ -16,4 +16,28 @@ export const users = pgTable("users", {
     .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),
+});
+
+export const activities = pgTable("activities", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  imageUrl: text("image_url"),
+  date: timestamp("date").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const activityParticipants = pgTable("activity_participants", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  activityId: integer("activity_id")
+    .references(() => activities.id, { onDelete: "cascade" })
+    .notNull(),
+  registeredAt: timestamp("registered_at").defaultNow().notNull(),
 });
