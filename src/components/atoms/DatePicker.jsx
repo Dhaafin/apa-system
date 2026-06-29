@@ -21,14 +21,16 @@ export default function DatePicker({
   className = "",
   id,
   inputClassName = "",
+  direction = "up",
   ...props
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
   const [mounted, setMounted] = useState(false);
-  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
+  const [coords, setCoords] = useState({ top: 0, bottom: 0, left: 0, width: 0, height: 0 });
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
+  const popoverRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
@@ -38,9 +40,11 @@ export default function DatePicker({
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
       setCoords({
-        top: rect.bottom + window.scrollY,
+        top: rect.top + window.scrollY,
+        bottom: rect.bottom + window.scrollY,
         left: rect.left + window.scrollX,
         width: rect.width,
+        height: rect.height,
       });
     }
   };
@@ -70,7 +74,9 @@ export default function DatePicker({
   // Click outside to close
   useEffect(() => {
     function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      const clickedDropdown = dropdownRef.current && dropdownRef.current.contains(event.target);
+      const clickedPopover = popoverRef.current && popoverRef.current.contains(event.target);
+      if (!clickedDropdown && !clickedPopover) {
         setIsOpen(false);
       }
     }
@@ -166,9 +172,10 @@ export default function DatePicker({
         <AnimatePresence>
           {isOpen && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -8 }}
+              ref={popoverRef}
+              initial={{ opacity: 0, scale: 0.95, y: direction === "up" ? 8 : -8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -8 }}
+              exit={{ opacity: 0, scale: 0.95, y: direction === "up" ? 8 : -8 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
               className={`absolute z-[9999] p-4 rounded-2xl border shadow-2xl flex flex-col gap-3 min-w-[280px] ${isDarkTheme
                   ? "bg-[#00241d] border-emerald-500/10 text-white shadow-emerald-950/20"
@@ -176,9 +183,10 @@ export default function DatePicker({
                 }`}
               style={{
                 position: "absolute",
-                top: coords.top + 4,
+                top: direction === "up" ? coords.top : coords.bottom,
                 left: coords.left,
                 width: Math.max(coords.width, 280),
+                transform: direction === "up" ? "translateY(calc(-100% - 6px))" : "translateY(6px)",
               }}
             >
               {/* Header controls */}

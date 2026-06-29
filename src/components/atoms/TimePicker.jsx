@@ -17,15 +17,17 @@ export default function TimePicker({
   className = "",
   id,
   inputClassName = "",
+  direction = "up",
   ...props
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [hour, setHour] = useState("12");
   const [minute, setMinute] = useState("00");
   const [mounted, setMounted] = useState(false);
-  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
+  const [coords, setCoords] = useState({ top: 0, bottom: 0, left: 0, width: 0, height: 0 });
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
+  const popoverRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
@@ -35,9 +37,11 @@ export default function TimePicker({
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
       setCoords({
-        top: rect.bottom + window.scrollY,
+        top: rect.top + window.scrollY,
+        bottom: rect.bottom + window.scrollY,
         left: rect.left + window.scrollX,
         width: rect.width,
+        height: rect.height,
       });
     }
   };
@@ -68,7 +72,9 @@ export default function TimePicker({
   // Click outside to close
   useEffect(() => {
     function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      const clickedDropdown = dropdownRef.current && dropdownRef.current.contains(event.target);
+      const clickedPopover = popoverRef.current && popoverRef.current.contains(event.target);
+      if (!clickedDropdown && !clickedPopover) {
         setIsOpen(false);
       }
     }
@@ -121,9 +127,10 @@ export default function TimePicker({
         <AnimatePresence>
           {isOpen && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -8 }}
+              ref={popoverRef}
+              initial={{ opacity: 0, scale: 0.95, y: direction === "up" ? 8 : -8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -8 }}
+              exit={{ opacity: 0, scale: 0.95, y: direction === "up" ? 8 : -8 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
               className={`absolute z-[9999] p-4 rounded-2xl border shadow-2xl flex flex-col gap-3 min-w-[200px] ${
                 isDarkTheme
@@ -132,9 +139,10 @@ export default function TimePicker({
               }`}
               style={{
                 position: "absolute",
-                top: coords.top + 4,
+                top: direction === "up" ? coords.top : coords.bottom,
                 left: coords.left,
                 width: coords.width,
+                transform: direction === "up" ? "translateY(calc(-100% - 6px))" : "translateY(6px)",
               }}
             >
               {/* Scrollable selectors wrapper */}
