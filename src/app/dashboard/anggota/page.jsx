@@ -31,6 +31,18 @@ export default function AnggotaPage() {
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Edit states
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [editFormData, setEditFormData] = useState({ name: "", email: "", password: "", className: "", status: "" });
+  const [editFormError, setEditFormError] = useState("");
+  const [editSubmitting, setEditSubmitting] = useState(false);
+
+  // Delete states
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+
   const fetchStudents = async () => {
     try {
       const response = await fetch("/api/admin/students");
@@ -109,6 +121,68 @@ export default function AnggotaPage() {
       setFormError(err.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleEditClick = (student) => {
+    setSelectedStudent(student);
+    setEditFormData({
+      name: student.name || "",
+      email: student.email || "",
+      password: "", // Optional, blank by default
+      className: student.class || "",
+      status: student.status || "APPROVED",
+    });
+    setEditFormError("");
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateMember = async (e) => {
+    e.preventDefault();
+    setEditFormError("");
+    setEditSubmitting(true);
+    try {
+      const response = await fetch("/api/admin/students", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: selectedStudent.id, ...editFormData }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal memperbarui data anggota");
+      }
+      setIsEditModalOpen(false);
+      showFlashMessage("success", `Data anggota ${editFormData.name} berhasil diperbarui!`);
+      fetchStudents();
+    } catch (err) {
+      setEditFormError(err.message);
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
+  const handleDeleteClick = (student) => {
+    setStudentToDelete(student);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setDeleteSubmitting(true);
+    try {
+      const response = await fetch(`/api/admin/students?id=${studentToDelete.id}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal menghapus anggota");
+      }
+      setIsDeleteModalOpen(false);
+      showFlashMessage("success", `Anggota ${studentToDelete.name} berhasil dihapus.`);
+      fetchStudents();
+    } catch (err) {
+      showFlashMessage("error", err.message);
+    } finally {
+      setDeleteSubmitting(false);
     }
   };
 
@@ -192,33 +266,55 @@ export default function AnggotaPage() {
       label: "Aksi",
       align: "right",
       render: (row) => {
-        if (row.status === "PENDING") {
-          return (
-            <div className="flex gap-2 justify-end">
-              <button
-                onClick={() => handleAction(row.id, "APPROVE")}
-                className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100/80 transition-all font-bold text-xs cursor-pointer"
-                title="Setujui"
-              >
-                ✓ Setuju
-              </button>
-              <button
-                onClick={() => handleAction(row.id, "REJECT")}
-                className="px-3 py-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100/80 transition-all font-bold text-xs cursor-pointer"
-                title="Tolak"
-              >
-                ✗ Tolak
-              </button>
-            </div>
-          );
-        }
-        if (row.status === "APPROVED") {
-          return (
-            <span className="text-xs text-zinc-400 font-bold italic">Terverifikasi</span>
-          );
-        }
         return (
-          <span className="text-xs text-red-400 font-bold italic">Ditolak</span>
+          <div className="flex gap-2 justify-end items-center">
+            {row.status === "PENDING" && (
+              <>
+                <button
+                  onClick={() => handleAction(row.id, "APPROVE")}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100/80 transition-all font-bold text-xs cursor-pointer"
+                  title="Setujui"
+                >
+                  ✓ Setuju
+                </button>
+                <button
+                  onClick={() => handleAction(row.id, "REJECT")}
+                  className="px-3 py-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100/80 transition-all font-bold text-xs cursor-pointer"
+                  title="Tolak"
+                >
+                  ✗ Tolak
+                </button>
+              </>
+            )}
+            {row.status === "APPROVED" && (
+              <span className="text-[10px] text-emerald-600 font-extrabold bg-emerald-50 px-2.5 py-1 rounded-lg uppercase tracking-wider">Aktif</span>
+            )}
+            {row.status === "REJECTED" && (
+              <span className="text-[10px] text-red-600 font-extrabold bg-red-50 px-2.5 py-1 rounded-lg uppercase tracking-wider">Ditolak</span>
+            )}
+            
+            {/* Edit Button */}
+            <button
+              onClick={() => handleEditClick(row)}
+              className="p-1.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-500 hover:text-[#ea580c] hover:border-[#ea580c]/30 hover:bg-orange-50/5 transition-all cursor-pointer flex items-center justify-center"
+              title="Edit Anggota"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </button>
+
+            {/* Delete Button */}
+            <button
+              onClick={() => handleDeleteClick(row)}
+              className="p-1.5 rounded-xl bg-red-50 border border-red-100 text-red-500 hover:text-red-700 hover:bg-red-100 transition-all cursor-pointer flex items-center justify-center"
+              title="Hapus Anggota"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
         );
       }
     }
@@ -411,6 +507,155 @@ export default function AnggotaPage() {
             direction="up"
           />
         </form>
+      </Modal>
+
+      {/* ══ EDIT MEMBER MODAL ══ */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditFormError("");
+          setSelectedStudent(null);
+        }}
+        title="Edit Data Anggota"
+        footer={
+          <div className="flex gap-3 w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsEditModalOpen(false);
+                setEditFormError("");
+                setSelectedStudent(null);
+              }}
+              className="flex-1 sm:flex-initial py-2.5 px-5 font-semibold text-zinc-500 border border-zinc-200 rounded-2xl hover:bg-zinc-50"
+              disabled={editSubmitting}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleUpdateMember}
+              className="flex-1 sm:flex-initial py-2.5 px-6 font-bold shadow-md shadow-[#ea580c]/15 rounded-2xl"
+              disabled={editSubmitting}
+            >
+              {editSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
+            </Button>
+          </div>
+        }
+      >
+        <form onSubmit={handleUpdateMember} className="space-y-4">
+          {editFormError && (
+            <div className="p-3.5 rounded-2xl bg-red-950/40 border border-red-900/50 text-red-400 text-xs font-bold flex items-center gap-2">
+              <span>⚠️</span>
+              <span>{editFormError}</span>
+            </div>
+          )}
+          <Input
+            label="Nama Lengkap"
+            placeholder="Masukkan nama lengkap siswa..."
+            value={editFormData.name}
+            onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+            required
+            inputClassName="!bg-black/20 !border-white/10 !text-white focus:!ring-[#ea580c] placeholder:!text-zinc-500"
+            icon={
+              <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            }
+          />
+          <Input
+            label="Alamat Email"
+            type="email"
+            placeholder="contoh: siswa@sekolah.com"
+            value={editFormData.email}
+            onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+            required
+            inputClassName="!bg-black/20 !border-white/10 !text-white focus:!ring-[#ea580c] placeholder:!text-zinc-500"
+            icon={
+              <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            }
+          />
+          <Input
+            label="Password Akun (Opsional)"
+            type="password"
+            placeholder="Isi hanya jika ingin mengganti password..."
+            value={editFormData.password}
+            onChange={(e) => setEditFormData({ ...editFormData, password: e.target.value })}
+            inputClassName="!bg-black/20 !border-white/10 !text-white focus:!ring-[#ea580c] placeholder:!text-zinc-500"
+            icon={
+              <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            }
+          />
+          <CustomDropdown
+            label="Kelas"
+            options={KELAS_OPTIONS}
+            value={editFormData.className}
+            onChange={(val) => setEditFormData({ ...editFormData, className: val })}
+            placeholder="Pilih kelas siswa..."
+            required
+            direction="down"
+          />
+          <CustomDropdown
+            label="Status Keanggotaan"
+            options={["PENDING", "APPROVED", "REJECTED"]}
+            value={editFormData.status}
+            onChange={(val) => setEditFormData({ ...editFormData, status: val })}
+            placeholder="Pilih status..."
+            required
+            direction="up"
+          />
+        </form>
+      </Modal>
+
+      {/* ══ DELETE CONFIRMATION MODAL ══ */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setStudentToDelete(null);
+        }}
+        title="Konfirmasi Hapus Anggota"
+        footer={
+          <div className="flex gap-3 w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDeleteModalOpen(false);
+                setStudentToDelete(null);
+              }}
+              className="flex-1 sm:flex-initial py-2.5 px-5 font-semibold text-zinc-500 border border-zinc-200 rounded-2xl hover:bg-zinc-50"
+              disabled={deleteSubmitting}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleDeleteConfirm}
+              className="flex-1 sm:flex-initial py-2.5 px-6 font-bold bg-red-600 hover:bg-red-700 text-white rounded-2xl"
+              disabled={deleteSubmitting}
+            >
+              {deleteSubmitting ? "Menghapus..." : "Ya, Hapus Anggota"}
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4 text-center py-4">
+          <div className="w-16 h-16 bg-red-500/10 border border-red-500/35 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </div>
+          <Text variant="h3" className="text-white font-extrabold">
+            Apakah Anda yakin?
+          </Text>
+          <Text variant="body" className="text-slate-300 max-w-sm mx-auto leading-relaxed">
+            Tindakan ini akan menghapus data keanggotaan milik <strong className="text-white font-bold">{studentToDelete?.name}</strong> ({studentToDelete?.email}) secara permanen dari sistem database.
+          </Text>
+        </div>
       </Modal>
     </div>
   );

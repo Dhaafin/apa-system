@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 
@@ -128,6 +128,136 @@ export async function POST(request) {
     console.error("Create student error:", error);
     return NextResponse.json(
       { success: false, message: "Gagal membuat anggota baru." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request) {
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("session");
+
+    if (!sessionCookie) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized. Please log in." },
+        { status: 401 }
+      );
+    }
+
+    const session = JSON.parse(sessionCookie.value);
+
+    // Verify requesting user is GURU
+    const admin = await db.query.users.findFirst({
+      where: and(eq(users.email, session.email), eq(users.role, "GURU")),
+    });
+
+    if (!admin) {
+      return NextResponse.json(
+        { success: false, message: "Forbidden. Admin access required." },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+    const { id, name, email, password, className, status } = body;
+
+    if (!id || !name || !email) {
+      return NextResponse.json(
+        { success: false, message: "ID, nama, dan email wajib diisi." },
+        { status: 400 }
+      );
+    }
+
+    // Check if email is already taken by another user
+    const existingUser = await db.query.users.findFirst({
+      where: and(eq(users.email, email), ne(users.id, id)),
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { success: false, message: "Email sudah terdaftar pada pengguna lain." },
+        { status: 400 }
+      );
+    }
+
+    const updateData = {
+      name,
+      email,
+      class: className || null,
+    };
+
+    if (status) {
+      updateData.status = status;
+    }
+
+    if (password && password.trim() !== "") {
+      updateData.passwordHash = await bcrypt.hash(password, 10);
+    }
+
+    await db.update(users).set(updateData).where(eq(users.id, id));
+
+    return NextResponse.json({
+      success: true,
+      message: "Data anggota berhasil diperbarui.",
+    });
+  } catch (error) {
+    console.error("Update student error:", error);
+    return NextResponse.json(
+      { success: false, message: "Gagal memperbarui data anggota." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request) {
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("session");
+
+    if (!sessionCookie) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized. Please log in." },
+        { status: 401 }
+      );
+    }
+
+    const session = JSON.parse(sessionCookie.value);
+
+    // Verify requesting user is GURU
+    const admin = await db.query.users.findFirst({
+      where: and(eq(users.email, session.email), eq(users.role, "GURU")),
+    });
+
+    if (!admin) {
+      return NextResponse.json(
+        { success: false, message: "Forbidden. Admin access required." },
+        { status: 403 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const studentIdStr = searchParams.get("id");
+
+    if (!studentIdStr) {
+      return NextResponse.json(
+        { success: false, message: "ID anggota wajib disertakan." },
+        { status: 400 }
+      );
+    }
+
+    const studentId = parseInt(studentIdStr, 10);
+
+    await db.delete(users).where(eq(users.id, studentId));
+
+    return NextResponse.json({
+      success: true,
+      message: "Anggota berhasil dihapus.",
+    });
+  } catch (error) {
+    console.error("Delete student error:", error);
+    return NextResponse.json(
+      { success: false, message: "Gagal menghapus anggota." },
       { status: 500 }
     );
   }
