@@ -5,6 +5,8 @@ import Button from "@/components/atoms/Button";
 import Table from "@/components/atoms/Table";
 import Text from "@/components/atoms/Text";
 import Image from "next/image";
+import Modal from "@/components/atoms/Modal";
+import Input from "@/components/atoms/Input";
 
 export default function AnggotaPage() {
   const [students, setStudents] = useState([]);
@@ -13,6 +15,12 @@ export default function AnggotaPage() {
   const [selectedClass, setSelectedClass] = useState("ALL");
   const [selectedStatus, setSelectedStatus] = useState("ALL");
   const [adminEmail, setAdminEmail] = useState("");
+  
+  // Modal states
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", password: "", className: "" });
+  const [formError, setFormError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const fetchStudents = async () => {
     try {
@@ -30,7 +38,20 @@ export default function AnggotaPage() {
   };
 
   useEffect(() => {
-    setAdminEmail("muhammadfc44@gmail.com");
+    async function fetchMe() {
+      try {
+        const response = await fetch("/api/auth/me");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.user) {
+            setAdminEmail(data.user.email || "");
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchMe();
     fetchStudents();
   }, []);
 
@@ -46,6 +67,30 @@ export default function AnggotaPage() {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleCreateMember = async (e) => {
+    e.preventDefault();
+    setFormError("");
+    setSubmitting(true);
+    try {
+      const response = await fetch("/api/admin/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal membuat anggota baru");
+      }
+      setFormData({ name: "", email: "", password: "", className: "" });
+      setIsModalOpen(false);
+      fetchStudents();
+    } catch (err) {
+      setFormError(err.message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -197,6 +242,7 @@ export default function AnggotaPage() {
 
           <Button
             variant="secondary"
+            onClick={() => setIsModalOpen(true)}
             className="py-3 px-6 font-bold shadow-md shadow-[#ea580c]/25 rounded-2xl shrink-0 self-start sm:self-center"
           >
             Tambah Anggota
@@ -257,6 +303,78 @@ export default function AnggotaPage() {
         emptyMessage="Tidak ada data anggota ditemukan"
         className="bg-white"
       />
+
+      {/* ══ CREATE MEMBER MODAL ══ */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setFormError("");
+          setFormData({ name: "", email: "", password: "", className: "" });
+        }}
+        title="Tambah Anggota Baru"
+        footer={
+          <div className="flex gap-3 w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsModalOpen(false);
+                setFormError("");
+                setFormData({ name: "", email: "", password: "", className: "" });
+              }}
+              className="flex-1 sm:flex-initial py-2.5 px-5 font-semibold text-zinc-500 border border-zinc-200 rounded-2xl hover:bg-zinc-50"
+              disabled={submitting}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleCreateMember}
+              className="flex-1 sm:flex-initial py-2.5 px-6 font-bold shadow-md shadow-[#ea580c]/15 rounded-2xl"
+              disabled={submitting}
+            >
+              {submitting ? "Menyimpan..." : "Simpan Anggota"}
+            </Button>
+          </div>
+        }
+      >
+        <form onSubmit={handleCreateMember} className="space-y-4">
+          {formError && (
+            <div className="p-3.5 rounded-2xl bg-red-50 border border-red-100 text-red-600 text-xs font-bold">
+              ⚠️ {formError}
+            </div>
+          )}
+          <Input
+            label="Nama Lengkap"
+            placeholder="Masukkan nama lengkap siswa..."
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
+          />
+          <Input
+            label="Alamat Email"
+            type="email"
+            placeholder="contoh: siswa@sekolah.com"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            required
+          />
+          <Input
+            label="Password Akun"
+            type="password"
+            placeholder="Minimal 6 karakter..."
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            required
+          />
+          <Input
+            label="Kelas"
+            placeholder="contoh: XI RPL 1, XII Kimia 2..."
+            value={formData.className}
+            onChange={(e) => setFormData({ ...formData, className: e.target.value })}
+          />
+        </form>
+      </Modal>
     </div>
   );
 }
