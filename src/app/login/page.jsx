@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
 
@@ -27,7 +28,7 @@ export default function LoginPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Login failed");
+        throw new Error(result.message || "Gagal masuk");
       }
 
       router.push("/dashboard");
@@ -63,16 +64,16 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <Input
-            label="Email Address"
+            label="Alamat Email"
             type="email"
-            placeholder="Enter your email"
+            placeholder="Masukkan email Anda"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
 
           <Input
-            label="Password"
+            label="Kata Sandi"
             type="password"
             placeholder="••••••••"
             value={password}
@@ -86,11 +87,18 @@ export default function LoginPage() {
             className="w-full py-3.5 mt-2 bg-[#004d3d] hover:bg-[#0b5c46]"
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Login to Account"}
+            {loading ? "Masuk..." : "Masuk ke Akun"}
           </Button>
         </form>
 
-        <p className="text-center text-xs text-zinc-500 mt-6">
+        <p className="text-center text-xs text-zinc-400 mt-6">
+          Belum punya akun?{" "}
+          <Link href="/register" className="text-[#ea580c] font-semibold hover:underline">
+            Daftar di sini
+          </Link>
+        </p>
+
+        <p className="text-center text-xs text-zinc-500 mt-4">
           Lestari Alamku, Jaya Sekolahku!
         </p>
       </div>

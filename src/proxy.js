@@ -11,6 +11,15 @@ export function proxy(request) {
     }
   }
 
+  // Redirect root path
+  if (pathname === "/") {
+    if (sessionCookie) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    } else {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+  }
+
   // Redirect logged-in users away from login/register pages
   if (pathname === "/login" || pathname === "/register") {
     if (sessionCookie) {
@@ -23,5 +32,5 @@ export function proxy(request) {
 
 // Config to target specific routes
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/register"],
+  matcher: ["/", "/dashboard/:path*", "/login", "/register"],
 };
