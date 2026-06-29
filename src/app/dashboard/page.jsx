@@ -6,6 +6,7 @@ import Image from "next/image";
 import Button from "@/components/atoms/Button";
 import Text from "@/components/atoms/Text";
 import { motion } from "framer-motion";
+import Table from "@/components/atoms/Table";
 
 export default function DashboardOverviewPage() {
   const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0 });
@@ -46,6 +47,47 @@ export default function DashboardOverviewPage() {
     fetchStats();
     fetchActivities();
   }, []);
+
+  const tableHeaders = [
+    {
+      key: "title",
+      label: "Acara",
+      render: (row) => (
+        <div className="flex items-center gap-3">
+          {row.imageUrl ? (
+            <div className="w-10 h-10 rounded-xl overflow-hidden border border-zinc-100 relative shrink-0">
+              <Image src={row.imageUrl} alt={row.title} fill className="object-cover" />
+            </div>
+          ) : (
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center font-bold shrink-0">
+              ⛰️
+            </div>
+          )}
+          <div>
+            <span className="font-bold text-zinc-800 text-sm block leading-normal">{row.title}</span>
+            <span className="text-[10px] text-zinc-400 font-medium uppercase tracking-wide">{row.category || "Ekspedisi"}</span>
+          </div>
+        </div>
+      )
+    },
+    {
+      key: "date",
+      label: "Tanggal & Waktu",
+      render: (row) => (
+        <div>
+          <span className="font-semibold text-zinc-700 text-sm block">{row.date}</span>
+          <span className="text-[11px] text-zinc-400 block mt-0.5">{row.time || "WIB"}</span>
+        </div>
+      )
+    },
+    {
+      key: "location",
+      label: "Lokasi",
+      render: (row) => (
+        <span className="text-zinc-600 text-sm font-semibold">{row.location}</span>
+      )
+    }
+  ];
 
   return (
     <div className="flex-1 flex flex-col gap-6 font-sans">
@@ -175,8 +217,8 @@ export default function DashboardOverviewPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left Side: Recent activities table (col-span-2) */}
-        <div className="lg:col-span-2 bg-white border border-zinc-200/80 rounded-[32px] p-6 shadow-sm flex flex-col gap-5">
-          <div className="flex items-center justify-between">
+        <div className="lg:col-span-2 flex flex-col gap-4">
+          <div className="flex items-center justify-between px-2">
             <div>
               <Text variant="h3" className="text-[#002d23] font-bold">Kegiatan Terbaru</Text>
               <Text variant="caption" color="muted">Jadwal agenda petualangan & ekspedisi terdekat</Text>
@@ -188,61 +230,13 @@ export default function DashboardOverviewPage() {
             </Link>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-zinc-100">
-                  <th className="py-3 text-xs font-bold text-zinc-400 uppercase tracking-wider">Acara</th>
-                  <th className="py-3 text-xs font-bold text-zinc-400 uppercase tracking-wider">Tanggal & Waktu</th>
-                  <th className="py-3 text-xs font-bold text-zinc-400 uppercase tracking-wider">Lokasi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activitiesLoading ? (
-                  <tr>
-                    <td colSpan={3} className="py-8 text-center text-sm text-zinc-400 font-medium">
-                      Memuat data kegiatan...
-                    </td>
-                  </tr>
-                ) : activities.length === 0 ? (
-                  <tr>
-                    <td colSpan={3} className="py-8 text-center text-sm text-zinc-400 font-medium">
-                      Belum ada kegiatan yang dibuat.
-                    </td>
-                  </tr>
-                ) : (
-                  activities.map((act) => (
-                    <tr key={act.id} className="border-b border-zinc-100 hover:bg-zinc-50/50 transition-colors">
-                      <td className="py-4">
-                        <div className="flex items-center gap-3">
-                          {act.imageUrl ? (
-                            <div className="w-10 h-10 rounded-xl overflow-hidden border border-zinc-100 relative shrink-0">
-                              <Image src={act.imageUrl} alt={act.title} fill className="object-cover" />
-                            </div>
-                          ) : (
-                            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center font-bold shrink-0">
-                              ⛰️
-                            </div>
-                          )}
-                          <div>
-                            <span className="font-bold text-zinc-800 text-sm block leading-normal">{act.title}</span>
-                            <span className="text-[10px] text-zinc-400 font-medium uppercase tracking-wide">{act.category || "Ekspedisi"}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4">
-                        <span className="font-semibold text-zinc-700 text-sm block">{act.date}</span>
-                        <span className="text-[11px] text-zinc-400 block mt-0.5">{act.time || "WIB"}</span>
-                      </td>
-                      <td className="py-4">
-                        <span className="text-zinc-600 text-sm font-semibold">{act.location}</span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          <Table
+            headers={tableHeaders}
+            data={activities}
+            loading={activitiesLoading}
+            emptyMessage="Belum ada kegiatan terbaru yang dijadwalkan"
+            className="bg-white"
+          />
         </div>
 
         {/* Right Side: Quick Action Widgets & System Info */}
