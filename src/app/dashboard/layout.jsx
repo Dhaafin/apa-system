@@ -57,6 +57,7 @@ export default function DashboardLayout({ children }) {
   const [adminEmail, setAdminEmail] = useState("");
   const [adminName, setAdminName] = useState("");
   const [userRole, setUserRole] = useState("");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     async function fetchMe() {
@@ -108,9 +109,44 @@ export default function DashboardLayout({ children }) {
   });
 
   return (
-    <div className="h-screen bg-[#001410] flex text-zinc-100 font-sans antialiased overflow-hidden">
+    <div className="h-screen bg-[#001410] flex flex-col lg:flex-row text-zinc-100 font-sans antialiased overflow-hidden">
+      
+      {/* ══ MOBILE TOP HEADER ══ */}
+      <header className="lg:hidden flex items-center justify-between px-6 py-4 bg-[#001c16] border-b border-white/5 text-white z-10 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-[#ea580c] rounded-xl flex items-center justify-center font-bold text-[#001c16] shadow-md shadow-[#ea580c]/20 text-xs">
+            ⛰️
+          </div>
+          <span className="font-extrabold text-sm tracking-wide font-heading">KAPALA</span>
+        </div>
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-1.5 rounded-lg border border-white/10 hover:bg-white/5 text-white transition-colors cursor-pointer"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            {isMobileMenuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
+        </button>
+      </header>
+
+      {/* ══ MOBILE SIDEBAR BACKDROP OVERLAY ══ */}
+      {isMobileMenuOpen && (
+        <div
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-25 lg:hidden"
+        />
+      )}
+
       {/* ══ SLEEK SIDEBAR ══ */}
-      <aside className="w-80 bg-[#001c16]/95 backdrop-blur-xl text-white flex flex-col justify-between p-6 shrink-0 border-r border-white/5 relative z-20">
+      <aside
+        className={`fixed inset-y-0 left-0 z-30 w-80 bg-[#001c16]/97 backdrop-blur-xl text-white flex flex-col justify-between p-6 border-r border-white/5 lg:static lg:translate-x-0 transition-transform duration-300 ease-in-out ${
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         
         <div className="flex flex-col gap-6">
           {/* Header Brand */}
@@ -146,6 +182,7 @@ export default function DashboardLayout({ children }) {
                 <Link
                   key={item.path}
                   href={item.path}
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className={`group relative flex items-center gap-3.5 px-4.5 py-3 rounded-2xl text-sm font-semibold transition-colors text-left ${
                     isActive ? "text-white" : "text-slate-400 hover:text-white"
                   }`}
@@ -213,7 +250,7 @@ export default function DashboardLayout({ children }) {
       </aside>
 
       {/* ══ MAIN AREA: Dashboard content ══ */}
-      <main className="flex-1 flex flex-col p-8 overflow-y-auto bg-[#f4f7f6] relative text-zinc-900">
+      <main className="flex-1 flex flex-col p-4 md:p-8 overflow-y-auto bg-[#f4f7f6] relative text-zinc-900">
         {/* Subtle decorative glow */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/[0.03] rounded-full blur-[120px] pointer-events-none -z-10" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-amber-500/[0.02] rounded-full blur-[120px] pointer-events-none -z-10" />

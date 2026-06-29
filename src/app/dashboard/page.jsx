@@ -114,7 +114,7 @@ export default function DashboardOverviewPage() {
     <div className="flex-1 flex flex-col gap-6 font-sans">
       
       {/* ══ 1. IMMERSIVE HERO BANNER CARD ══ */}
-      <div className="w-full h-[280px] bg-zinc-950 rounded-[32px] overflow-hidden shadow-xl shadow-emerald-950/10 border border-white/5 relative flex items-center justify-between">
+      <div className="w-full min-h-[280px] bg-zinc-950 rounded-[32px] overflow-hidden shadow-xl shadow-emerald-950/10 border border-white/5 relative flex items-center justify-between">
         
         {/* Landscape backdrop hero image */}
         <div className="absolute inset-0">
