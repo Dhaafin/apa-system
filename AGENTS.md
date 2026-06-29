@@ -124,4 +124,14 @@ A stylized time picker input.
   - `required`: boolean
   - `error`: validation error string
 
+### Atom: Modal (`src/components/atoms/Modal.jsx` or `@/components/atoms/Modal`)
+A stylized overlay modal card with transition animations.
+- **Props**:
+  - `isOpen`: boolean visibility state
+  - `onClose`: callback handler to close modal
+  - `title`: header title string
+  - `children`: content body
+  - `footer`: custom action footer buttons (ReactNode)
+
+
 
