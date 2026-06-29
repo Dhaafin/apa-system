@@ -40,6 +40,62 @@ export default function AcaraPage() {
   const [activityToDelete, setActivityToDelete] = useState(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
 
+  // Participants list modal states
+  const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false);
+  const [selectedActivityForParticipants, setSelectedActivityForParticipants] = useState(null);
+  const [participants, setParticipants] = useState([]);
+  const [participantsLoading, setParticipantsLoading] = useState(false);
+  const [approvalLoadingId, setApprovalLoadingId] = useState(null);
+
+  const openParticipantsModal = async (activity) => {
+    setSelectedActivityForParticipants(activity);
+    setIsParticipantsModalOpen(true);
+    setParticipantsLoading(true);
+    try {
+      const response = await fetch(`/api/activities/participants?activityId=${activity.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setParticipants(data.participants || []);
+      }
+    } catch (err) {
+      console.error(err);
+      showFlashMessage("error", "Gagal memuat daftar peserta.");
+    } finally {
+      setParticipantsLoading(false);
+    }
+  };
+
+  const handleApproveRejectParticipant = async (participantId, action) => {
+    setApprovalLoadingId(participantId);
+    try {
+      const response = await fetch("/api/admin/activities/approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ participantId, action }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal memproses pendaftaran.");
+      }
+      
+      // Update local participants state list
+      setParticipants(prev =>
+        prev.map(p =>
+          p.id === participantId
+            ? { ...p, status: action === "APPROVE" ? "APPROVED" : "REJECTED" }
+            : p
+        )
+      );
+
+      showFlashMessage("success", `Kehadiran berhasil ${action === "APPROVE" ? "disetujui" : "ditolak"}!`);
+      await fetchActivities(); // update count on cards
+    } catch (err) {
+      showFlashMessage("error", err.message);
+    } finally {
+      setApprovalLoadingId(null);
+    }
+  };
+
   const fetchActivities = async () => {
     try {
       const response = await fetch("/api/activities");
@@ -421,9 +477,20 @@ export default function AcaraPage() {
 
                   {/* Footer metadata + actions */}
                   <div className="flex items-center justify-between border-t border-zinc-100 pt-4 mt-2">
-                    <div className="flex items-center gap-1 text-xs font-semibold text-zinc-500">
-                      <span>👥</span> {activity.participantCount || 0} Siswa Terdaftar
-                    </div>
+                    {userRole !== "SISWA" ? (
+                      <button
+                        type="button"
+                        onClick={() => openParticipantsModal(activity)}
+                        className="flex items-center gap-1 text-xs font-bold text-[#002d23] hover:text-[#ea580c] transition-colors cursor-pointer bg-transparent border-0 p-0"
+                        title="Lihat & kelola siswa terdaftar"
+                      >
+                        <span>👥</span> <span className="underline decoration-dotted">{activity.participantCount || 0} Siswa Terdaftar</span>
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-1 text-xs font-semibold text-zinc-500">
+                        <span>👥</span> {activity.participantCount || 0} Siswa Terdaftar
+                      </div>
+                    )}
 
                     {/* Action buttons */}
                     <div className="flex items-center gap-2">
@@ -615,6 +682,93 @@ export default function AcaraPage() {
                   weekday: "long", year: "numeric", month: "long", day: "numeric",
                 })}
               </Text>
+            </div>
+          )}
+        </div>
+      </Modal>
+
+      {/* ══ PARTICIPANTS LIST & APPROVAL MODAL ══ */}
+      <Modal
+        isOpen={isParticipantsModalOpen}
+        onClose={() => {
+          setIsParticipantsModalOpen(false);
+          setParticipants([]);
+          setSelectedActivityForParticipants(null);
+        }}
+        title={`Siswa Terdaftar - ${selectedActivityForParticipants?.name || "Detail"}`}
+        footer={
+          <div className="flex w-full justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsParticipantsModalOpen(false);
+                setParticipants([]);
+                setSelectedActivityForParticipants(null);
+              }}
+            >
+              Tutup
+            </Button>
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto pr-1">
+          {participantsLoading ? (
+            <div className="py-8 text-center text-zinc-400 font-medium">
+              Memuat daftar siswa...
+            </div>
+          ) : participants.length === 0 ? (
+            <div className="py-8 text-center text-zinc-400 font-medium">
+              Belum ada siswa terdaftar pada kegiatan ini.
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {participants.map((p) => (
+                <div
+                  key={p.id}
+                  className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all gap-4"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-bold text-white text-sm">{p.student.name}</span>
+                    <span className="text-xs text-zinc-400">{p.student.email}</span>
+                    {p.student.class && (
+                      <span className="inline-block self-start mt-1.5 px-2 py-0.5 rounded-lg text-[9px] font-bold bg-[#ea580c]/10 text-[#ea580c] border border-[#ea580c]/25 uppercase tracking-wider">
+                        {p.student.class}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    {p.status === "PENDING" ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleApproveRejectParticipant(p.id, "APPROVE")}
+                          disabled={approvalLoadingId === p.id}
+                          className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/25 transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          Setuju
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleApproveRejectParticipant(p.id, "REJECT")}
+                          disabled={approvalLoadingId === p.id}
+                          className="px-3 py-1.5 rounded-xl text-xs font-bold bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/25 transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          Tolak
+                        </button>
+                      </>
+                    ) : p.status === "APPROVED" ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                        ✓ Disetujui
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold bg-red-500/15 text-red-400 border border-red-500/20">
+                        ✗ Ditolak
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
