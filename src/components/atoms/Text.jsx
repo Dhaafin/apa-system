@@ -50,10 +50,12 @@ export default function Text({
   const Tag = as || DEFAULT_TAG[variant] || "p";
   const variantClass = VARIANT_STYLES[variant] ?? VARIANT_STYLES.body;
   const colorClass   = COLOR_STYLES[color]   ?? COLOR_STYLES.primary;
+  const isHeading    = ["h1", "h2", "h3", "h4"].includes(variant);
+  const fontClass    = isHeading ? "font-heading" : "font-sans";
 
   return (
     <Tag
-      className={`font-[Poppins,sans-serif] ${variantClass} ${colorClass} ${className}`}
+      className={`${fontClass} ${variantClass} ${colorClass} ${className}`}
       {...props}
     >
       {children}
