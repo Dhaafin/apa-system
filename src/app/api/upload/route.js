@@ -16,9 +16,10 @@ export async function POST(request) {
     // Read the binary body stream
     const fileBlob = await request.blob();
 
-    // Upload to Vercel Blob
+    // Upload to Vercel Blob (passing token explicitly to avoid local development OIDC error)
     const blobResult = await put(filename, fileBlob, {
       access: "public",
+      token: process.env.BLOB_READ_WRITE_TOKEN,
     });
 
     return NextResponse.json({
