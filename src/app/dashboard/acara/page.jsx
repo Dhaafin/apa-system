@@ -247,10 +247,11 @@ export default function AcaraPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            inputClassName="!bg-black/20 !border-white/10 !text-white focus:!ring-[#ea580c] placeholder:!text-zinc-500"
           />
 
           <div className="flex flex-col gap-1.5 w-full">
-            <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
               Deskripsi Kegiatan
               <span className="text-red-500 ml-1">*</span>
             </label>
@@ -260,7 +261,7 @@ export default function AcaraPage() {
               onChange={(e) => setDescription(e.target.value)}
               required
               rows={4}
-              className="w-full px-4 py-3 text-sm rounded-xl border bg-white text-zinc-900 border-zinc-200 focus:outline-none focus:ring-2 focus:ring-[#004d3d] focus:border-transparent transition-all placeholder:text-zinc-400 dark:bg-zinc-950 dark:text-white dark:border-zinc-800"
+              className="w-full px-4 py-3 text-sm rounded-xl border bg-black/20 text-white border-white/10 focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all placeholder:text-zinc-500"
             />
           </div>
 
@@ -270,25 +271,27 @@ export default function AcaraPage() {
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
+              inputClassName="!bg-black/20 !border-white/10 !text-white focus:!ring-[#ea580c]"
             />
             <TimePicker
               label="Waktu Mulai"
               value={time}
               onChange={(e) => setTime(e.target.value)}
               required
+              inputClassName="!bg-black/20 !border-white/10 !text-white focus:!ring-[#ea580c]"
             />
           </div>
 
           {/* Image File Upload Selection */}
           <div className="flex flex-col gap-1.5 w-full">
-            <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
               Foto Banner Kegiatan
             </label>
             <input
               type="file"
               accept="image/*"
               onChange={handleFileChange}
-              className="w-full text-xs text-zinc-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#002d23]/5 file:text-[#004d3d] hover:file:bg-[#002d23]/10 cursor-pointer border border-zinc-200 rounded-xl p-1"
+              className="w-full text-xs text-zinc-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-white/5 file:text-emerald-400 hover:file:bg-white/10 cursor-pointer border border-white/10 rounded-xl p-1 bg-black/20"
             />
           </div>
         </form>

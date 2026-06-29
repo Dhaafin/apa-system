@@ -8,6 +8,7 @@ export default function TimePicker({
   error,
   className = "",
   id,
+  inputClassName = "",
   ...props
 }) {
   const inputId = id || `time-${label ? label.toLowerCase().replace(/\s+/g, "-") : "default"}`;
@@ -32,7 +33,7 @@ export default function TimePicker({
           required={required}
           className={`w-full px-4 py-3 pl-11 text-sm rounded-xl border bg-white text-zinc-900 border-zinc-200 focus:outline-none focus:ring-2 focus:ring-[#004d3d] focus:border-transparent transition-all placeholder:text-zinc-400 dark:bg-zinc-950 dark:text-white dark:border-zinc-800 cursor-pointer ${
             error ? "border-red-500 focus:ring-red-500" : ""
-          }`}
+          } ${inputClassName}`}
           {...props}
         />
         {/* Clock SVG Icon */}
