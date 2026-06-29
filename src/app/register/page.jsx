@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
+import CustomDropdown from "@/components/atoms/CustomDropdown";
 
 const KELAS_OPTIONS = [
   "X KIMIA 1",
@@ -125,28 +126,15 @@ export default function RegisterPage() {
                 required
               />
 
-              {/* Class Dropdown Select */}
-              <div className="flex flex-col gap-1.5 w-full">
-                <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
-                  Kelas
-                  <span className="text-red-500 ml-1">*</span>
-                </label>
-                <select
-                  value={selectedClass}
-                  onChange={(e) => setSelectedClass(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 text-sm rounded-xl border bg-white text-zinc-900 border-zinc-200 focus:outline-none focus:ring-2 focus:ring-[#004d3d] focus:border-transparent transition-all dark:bg-zinc-950 dark:text-white dark:border-zinc-800 cursor-pointer"
-                >
-                  <option value="" disabled>
-                    Pilih Kelas Anda
-                  </option>
-                  {KELAS_OPTIONS.map((cls) => (
-                    <option key={cls} value={cls}>
-                      {cls}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {/* Custom Dropdown select box */}
+              <CustomDropdown
+                label="Kelas"
+                options={KELAS_OPTIONS}
+                value={selectedClass}
+                onChange={setSelectedClass}
+                placeholder="Pilih Kelas Anda"
+                required
+              />
 
               <Button
                 type="submit"

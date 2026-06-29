@@ -10,15 +10,15 @@ export default function Button({
   ...props
 }) {
   const baseStyles =
-    "px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed";
+    "px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.98]";
 
   const variants = {
     primary:
-      "bg-[#004d3d] text-white hover:bg-[#00382c] focus:ring-[#004d3d] shadow-sm",
+      "bg-[#004d3d] text-white hover:bg-[#003c2f] focus:ring-[#004d3d] shadow-[0_4px_14px_0_rgba(0,77,61,0.2)] hover:shadow-[0_6px_20px_rgba(0,77,61,0.25)] border border-transparent",
     secondary:
-      "bg-[#ea580c] text-white hover:bg-[#c2410c] focus:ring-[#ea580c] shadow-sm",
+      "bg-[#ea580c] text-white hover:bg-[#d04e0a] focus:ring-[#ea580c] shadow-[0_4px_14px_0_rgba(234,88,12,0.2)] hover:shadow-[0_6px_20px_rgba(234,88,12,0.25)] border border-transparent",
     outline:
-      "border border-zinc-300 text-zinc-700 bg-white hover:bg-zinc-50 hover:text-zinc-900 focus:ring-zinc-500",
+      "border border-zinc-200 text-zinc-700 bg-white hover:bg-zinc-50 hover:border-zinc-300 focus:ring-zinc-500 shadow-sm",
     ghost:
       "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950 focus:ring-zinc-500",
   };
