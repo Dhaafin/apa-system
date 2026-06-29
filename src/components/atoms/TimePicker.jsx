@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { motion as framerMotion, AnimatePresence as FramerAnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Text from "@/components/atoms/Text";
 
 const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
@@ -85,9 +85,9 @@ export default function TimePicker({
       </button>
 
       {/* Time Selection Popover */}
-      <FramerAnimatePresence>
+      <AnimatePresence>
         {isOpen && (
-          <framerMotion.div
+          <motion.div
             initial={{ opacity: 0, scale: 0.95, y: -8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -8 }}
@@ -151,9 +151,9 @@ export default function TimePicker({
             >
               Pilih Waktu ({hour}:{minute})
             </button>
-          </framerMotion.div>
+          </motion.div>
         )}
-      </FramerAnimatePresence>
+      </AnimatePresence>
 
       {error && (
         <span className="text-xs text-red-500 font-medium mt-0.5">{error}</span>

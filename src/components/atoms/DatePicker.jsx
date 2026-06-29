@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "react-transition-group"; // Wait, we use framer-motion in this codebase!
-import { motion as framerMotion, AnimatePresence as FramerAnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Text from "@/components/atoms/Text";
 
 const MONTH_NAMES = [
@@ -113,16 +112,15 @@ export default function DatePicker({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full px-4 py-3 pl-11 text-left text-sm rounded-xl border flex items-center justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#ea580c] transition-all relative ${
-          isDarkTheme
+        className={`w-full px-4 py-3 pl-11 text-left text-sm rounded-xl border flex items-center justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#ea580c] transition-all relative ${isDarkTheme
             ? "bg-black/20 border-white/10 text-white placeholder:text-zinc-500"
             : "bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400"
-        } ${error ? "border-red-500 focus:ring-red-500" : ""}`}
+          } ${error ? "border-red-500 focus:ring-red-500" : ""}`}
       >
         <span className={!value ? (isDarkTheme ? "text-zinc-500" : "text-zinc-400") : ""}>
           {getDisplayValue()}
         </span>
-        
+
         {/* Calendar Icon overlay */}
         <div className="absolute left-4 top-3.5 pointer-events-none text-zinc-400">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,16 +132,15 @@ export default function DatePicker({
       {/* Custom Calendar Popover Menu */}
       <AnimatePresence>
         {isOpen && (
-          <framerMotion.div
+          <motion.div
             initial={{ opacity: 0, scale: 0.95, y: -8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -8 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className={`absolute left-0 right-0 z-50 mt-1 p-4 rounded-2xl border shadow-2xl flex flex-col gap-3 min-w-[280px] top-[calc(100%+4px)] ${
-              isDarkTheme
+            className={`absolute left-0 right-0 z-50 mt-1 p-4 rounded-2xl border shadow-2xl flex flex-col gap-3 min-w-[280px] top-[calc(100%+4px)] ${isDarkTheme
                 ? "bg-[#00241d] border-emerald-500/10 text-white shadow-emerald-950/20"
                 : "bg-white border-zinc-200 text-zinc-800 shadow-zinc-200/50"
-            }`}
+              }`}
           >
             {/* Header controls */}
             <div className="flex items-center justify-between">
@@ -192,20 +189,19 @@ export default function DatePicker({
                     key={`day-${day}`}
                     type="button"
                     onClick={() => handleDateSelect(day)}
-                    className={`w-full aspect-square text-xs font-bold rounded-xl transition-all flex items-center justify-center cursor-pointer ${
-                      active
+                    className={`w-full aspect-square text-xs font-bold rounded-xl transition-all flex items-center justify-center cursor-pointer ${active
                         ? "bg-[#ea580c] text-white shadow-md shadow-[#ea580c]/20"
                         : isDarkTheme
-                        ? "hover:bg-emerald-500/10 text-zinc-200 hover:text-white"
-                        : "hover:bg-zinc-100 text-zinc-700 hover:text-zinc-900"
-                    }`}
+                          ? "hover:bg-emerald-500/10 text-zinc-200 hover:text-white"
+                          : "hover:bg-zinc-100 text-zinc-700 hover:text-zinc-900"
+                      }`}
                   >
                     {day}
                   </button>
                 );
               })}
             </div>
-          </framerMotion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
