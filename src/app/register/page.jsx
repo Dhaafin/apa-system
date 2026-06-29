@@ -5,11 +5,22 @@ import Link from "next/link";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
 
+const KELAS_OPTIONS = [
+  "X KIMIA 1",
+  "X KIMIA 2",
+  "X KIMIA 3",
+  "X KIMIA 4",
+  "XI KIMIA 1",
+  "XI KIMIA 2",
+  "XII KIMIA 1",
+  "XII KIMIA 2",
+];
+
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [className, setClassName] = useState("");
+  const [selectedClass, setSelectedClass] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -17,19 +28,25 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (!selectedClass) {
+      setError("Silakan pilih kelas Anda");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, class: className }),
+        body: JSON.stringify({ name, email, password, class: selectedClass }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Registration failed");
+        throw new Error(result.message || "Registrasi gagal");
       }
 
       setSuccess(true);
@@ -41,22 +58,38 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#001f18] px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-[#001f18] px-4 py-12 relative overflow-hidden">
       {/* Background Gradient Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[40%] -left-[20%] w-[80%] h-[80%] rounded-full bg-[#004d3d]/30 blur-[120px]" />
         <div className="absolute -bottom-[40%] -right-[20%] w-[80%] h-[80%] rounded-full bg-[#ea580c]/10 blur-[120px]" />
       </div>
 
-      <div className="w-full max-w-md bg-zinc-950/60 backdrop-blur-xl border border-zinc-800 p-8 rounded-3xl shadow-2xl relative z-10">
+      <div className="w-full max-w-md bg-zinc-950/60 backdrop-blur-xl border border-zinc-800/80 p-8 rounded-3xl shadow-2xl relative z-10">
         {!success ? (
           <>
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-[#ea580c] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#ea580c]/20">
-                <span className="text-white font-bold text-2xl">🌱</span>
+                {/* SVG Mountain Peak Icon replacing emoji */}
+                <svg
+                  className="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
               </div>
-              <h1 className="text-2xl font-bold tracking-tight text-white">Join SIPA Adventure</h1>
-              <p className="text-sm text-zinc-400 mt-1">Registrasi Akun Anggota Siswa Baru</p>
+              <h1 className="text-2xl font-black tracking-tight text-white uppercase">Daftar Anggota</h1>
+              <p className="text-xs font-bold text-[#eab308] mt-1 tracking-widest uppercase">
+                KAPALA - SMK KIMIA PGRI SERANG
+              </p>
             </div>
 
             {error && (
@@ -67,60 +100,83 @@ export default function RegisterPage() {
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <Input
-                label="Full Name"
-                placeholder="Enter your full name"
+                label="Nama Lengkap"
+                placeholder="Masukkan nama lengkap Anda"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
               />
 
               <Input
-                label="Email Address"
+                label="Alamat Email Siswa"
                 type="email"
-                placeholder="Enter your student email"
+                placeholder="email@sekolah.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
 
               <Input
-                label="Password"
+                label="Kata Sandi"
                 type="password"
-                placeholder="Create a strong password"
+                placeholder="Buat kata sandi baru"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
 
-              <Input
-                label="Class (Kelas)"
-                placeholder="e.g. XI MIPA 1"
-                value={className}
-                onChange={(e) => setClassName(e.target.value)}
-                required
-              />
+              {/* Class Dropdown Select */}
+              <div className="flex flex-col gap-1.5 w-full">
+                <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
+                  Kelas
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
+                <select
+                  value={selectedClass}
+                  onChange={(e) => setSelectedClass(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 text-sm rounded-xl border bg-white text-zinc-900 border-zinc-200 focus:outline-none focus:ring-2 focus:ring-[#004d3d] focus:border-transparent transition-all dark:bg-zinc-950 dark:text-white dark:border-zinc-800 cursor-pointer"
+                >
+                  <option value="" disabled>
+                    Pilih Kelas Anda
+                  </option>
+                  {KELAS_OPTIONS.map((cls) => (
+                    <option key={cls} value={cls}>
+                      {cls}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <Button
                 type="submit"
                 variant="primary"
-                className="w-full py-3.5 mt-2 bg-[#004d3d] hover:bg-[#0b5c46]"
+                className="w-full py-3.5 mt-2 bg-[#004d3d] hover:bg-[#0b5c46] cursor-pointer"
                 disabled={loading}
               >
-                {loading ? "Registering..." : "Create Student Account"}
+                {loading ? "Mendaftar..." : "Buat Akun Siswa"}
               </Button>
             </form>
 
             <p className="text-center text-xs text-zinc-400 mt-6">
-              Already have an account?{" "}
-              <Link href="/login" className="text-[#ea580c] font-semibold hover:underline">
-                Login here
+              Sudah memiliki akun?{" "}
+              <Link href="/login" className="text-[#ea580c] font-bold hover:underline">
+                Masuk di sini
               </Link>
             </p>
           </>
         ) : (
           <div className="text-center py-8">
-            <div className="w-16 h-16 bg-emerald-500/20 border border-emerald-500 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
-              ✓
+            <div className="w-16 h-16 bg-emerald-500/20 border border-emerald-500 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg
+                className="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
             </div>
             <h2 className="text-2xl font-bold text-white mb-3">Registrasi Berhasil!</h2>
             <p className="text-sm text-zinc-300 leading-relaxed mb-6">
@@ -128,7 +184,7 @@ export default function RegisterPage() {
               untuk menyetujui akun Anda agar bisa masuk ke sistem.
             </p>
             <Link href="/login">
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full cursor-pointer">
                 Kembali ke Halaman Login
               </Button>
             </Link>

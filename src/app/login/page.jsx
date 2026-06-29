@@ -28,7 +28,7 @@ export default function LoginPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Gagal masuk");
+        throw new Error(result.message || "Email atau kata sandi salah");
       }
 
       router.push("/dashboard");
@@ -40,20 +40,36 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#001f18] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#001f18] px-4 relative overflow-hidden">
       {/* Background Gradient Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[40%] -left-[20%] w-[80%] h-[80%] rounded-full bg-[#004d3d]/30 blur-[120px]" />
         <div className="absolute -bottom-[40%] -right-[20%] w-[80%] h-[80%] rounded-full bg-[#ea580c]/10 blur-[120px]" />
       </div>
 
-      <div className="w-full max-w-md bg-zinc-950/60 backdrop-blur-xl border border-zinc-800 p-8 rounded-3xl shadow-2xl relative z-10">
+      <div className="w-full max-w-md bg-zinc-950/60 backdrop-blur-xl border border-zinc-800/80 p-8 rounded-3xl shadow-2xl relative z-10">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-[#ea580c] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#ea580c]/20">
-            <span className="text-white font-bold text-2xl">🌲</span>
+            {/* SVG Tree Icon replacing emoji */}
+            <svg
+              className="w-8 h-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 2L2 22h20L12 2zM12 5l6.5 13H5.5L12 5zm0 8v5"
+              />
+            </svg>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">SIPA ADVENTURE</h1>
-          <p className="text-sm text-zinc-400 mt-1">KAPALA - SMK KIMIA PGRI SERANG</p>
+          <h1 className="text-2xl font-black tracking-tight text-white uppercase">SIPA ADVENTURE</h1>
+          <p className="text-xs font-bold text-[#eab308] mt-1 tracking-widest uppercase">
+            KAPALA - SMK KIMIA PGRI SERANG
+          </p>
         </div>
 
         {error && (
@@ -84,21 +100,23 @@ export default function LoginPage() {
           <Button
             type="submit"
             variant="primary"
-            className="w-full py-3.5 mt-2 bg-[#004d3d] hover:bg-[#0b5c46]"
+            className="w-full py-3.5 mt-2 bg-[#004d3d] hover:bg-[#0b5c46] cursor-pointer transition-all duration-200"
             disabled={loading}
           >
             {loading ? "Masuk..." : "Masuk ke Akun"}
           </Button>
         </form>
 
-        <p className="text-center text-xs text-zinc-400 mt-6">
-          Belum punya akun?{" "}
-          <Link href="/register" className="text-[#ea580c] font-semibold hover:underline">
-            Daftar di sini
-          </Link>
-        </p>
+        <div className="mt-8 text-center border-t border-zinc-800/80 pt-6">
+          <p className="text-xs text-zinc-400">
+            Belum terdaftar sebagai anggota?{" "}
+            <Link href="/register" className="text-[#ea580c] font-bold hover:underline ml-1">
+              Daftar Siswa Baru
+            </Link>
+          </p>
+        </div>
 
-        <p className="text-center text-xs text-zinc-500 mt-4">
+        <p className="text-center text-[10px] text-zinc-500 font-medium tracking-wide uppercase mt-6">
           Lestari Alamku, Jaya Sekolahku!
         </p>
       </div>
