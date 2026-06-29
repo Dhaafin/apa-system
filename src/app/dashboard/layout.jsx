@@ -197,10 +197,10 @@ export default function DashboardLayout({ children }) {
       </aside>
 
       {/* ══ MAIN AREA: Dashboard content ══ */}
-      <main className="flex-1 flex flex-col p-8 overflow-y-auto bg-[#001712] relative">
-        {/* Glow light background behind main dashboard */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none -z-10" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-amber-500/2 blur-[120px] pointer-events-none -z-10" />
+      <main className="flex-1 flex flex-col p-8 overflow-y-auto bg-[#f4f7f6] relative text-zinc-900">
+        {/* Subtle decorative glow */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/[0.03] rounded-full blur-[120px] pointer-events-none -z-10" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-amber-500/[0.02] rounded-full blur-[120px] pointer-events-none -z-10" />
         
         {children}
       </main>
