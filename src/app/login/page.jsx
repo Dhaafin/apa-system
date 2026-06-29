@@ -332,7 +332,7 @@ export default function AuthPage() {
 
       {/* ══ RIGHT PANEL: Auth Forms ══ */}
       <div
-        className="w-full lg:w-[45%] lg:h-screen lg:overflow-hidden flex items-center justify-center px-6 py-8 relative overflow-hidden"
+        className="w-full lg:w-[45%] min-h-screen lg:h-screen overflow-y-auto lg:overflow-hidden flex items-center justify-center px-6 py-8 relative"
         style={{ background: "linear-gradient(145deg, #0d1f2d 0%, #0f2318 40%, #1a1a2e 100%)" }}
       >
         {/* Mesh gradient orbs */}
