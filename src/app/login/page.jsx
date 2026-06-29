@@ -2,13 +2,46 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
-import { motion } from "framer-motion";
+import CustomDropdown from "@/components/atoms/CustomDropdown";
+import { motion, AnimatePresence } from "framer-motion";
 
-export default function LoginPage() {
+const KELAS_OPTIONS = [
+  "X KIMIA 1", "X KIMIA 2", "X KIMIA 3", "X KIMIA 4",
+  "XI KIMIA 1", "XI KIMIA 2",
+  "XII KIMIA 1", "XII KIMIA 2",
+];
+
+/* ─── Shared spinner ─── */
+function Spinner() {
+  return (
+    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+    </svg>
+  );
+}
+
+/* ─── Error Alert ─── */
+function ErrorAlert({ message }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-5 p-3.5 rounded-xl bg-red-950/40 border border-red-900/50 text-red-300 text-sm font-medium flex items-center gap-3"
+    >
+      <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+      </svg>
+      {message}
+    </motion.div>
+  );
+}
+
+/* ─── Login Form ─── */
+function LoginForm({ onSwitch }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,20 +52,14 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
-      const response = await fetch("/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Email atau kata sandi salah");
-      }
-
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Email atau kata sandi salah");
       router.push("/dashboard");
     } catch (err) {
       setError(err.message);
@@ -42,10 +69,137 @@ export default function LoginPage() {
   };
 
   return (
+    <>
+      <div className="mb-7">
+        <h2 className="text-2xl font-extrabold text-white tracking-tight">Selamat Datang</h2>
+        <p className="text-sm text-slate-400 mt-1.5">Masuk ke akun anggota Anda untuk melanjutkan.</p>
+      </div>
+
+      {error && <ErrorAlert message={error} />}
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <Input label="Email" type="email" placeholder="nama@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+
+        <div>
+          <Input label="Kata Sandi" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <div className="flex justify-end mt-2">
+            <button type="button" className="text-[11px] text-[#ea580c] hover:text-[#fb923c] font-medium transition-colors cursor-pointer">
+              Lupa kata sandi?
+            </button>
+          </div>
+        </div>
+
+        <Button type="submit" variant="primary" className="w-full py-3.5 mt-1 text-sm font-semibold" disabled={loading}>
+          {loading ? <><Spinner /> Memproses...</> : "Masuk"}
+        </Button>
+      </form>
+
+      <div className="mt-8 text-center">
+        <p className="text-sm text-slate-400">
+          Belum memiliki akun?{" "}
+          <button onClick={onSwitch} className="text-[#ea580c] font-bold hover:text-[#fb923c] transition-colors cursor-pointer">
+            Daftar sekarang
+          </button>
+        </p>
+      </div>
+    </>
+  );
+}
+
+/* ─── Register Form ─── */
+function RegisterForm({ onSwitch }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [selectedClass, setSelectedClass] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (!selectedClass) { setError("Silakan pilih kelas Anda"); return; }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, class: selectedClass }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Registrasi gagal");
+      setSuccess(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="text-center py-6">
+        <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-5">
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3 className="text-xl font-bold text-white mb-3">Pendaftaran Berhasil!</h3>
+        <p className="text-sm text-slate-400 leading-relaxed mb-6">
+          Akun Anda telah dibuat dengan status <strong className="text-[#ea580c]">PENDING</strong>. Hubungi Guru pembimbing KAPALA untuk persetujuan akun.
+        </p>
+        <button onClick={onSwitch} className="w-full py-3 rounded-xl border border-slate-600 text-slate-300 hover:border-[#ea580c]/60 hover:text-[#ea580c] transition-all duration-200 text-sm font-semibold cursor-pointer">
+          Kembali ke Halaman Masuk
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="mb-6">
+        <h2 className="text-2xl font-extrabold text-white tracking-tight">Daftar Anggota</h2>
+        <p className="text-sm text-slate-400 mt-1.5">Buat akun siswa baru untuk Pencinta Alam.</p>
+      </div>
+
+      {error && <ErrorAlert message={error} />}
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <Input label="Nama Lengkap" placeholder="Masukkan nama lengkap Anda" value={name} onChange={(e) => setName(e.target.value)} required />
+        <Input label="Email Siswa" type="email" placeholder="email@sekolah.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <Input label="Kata Sandi" type="password" placeholder="Buat kata sandi baru" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <CustomDropdown label="Kelas" options={KELAS_OPTIONS} value={selectedClass} onChange={setSelectedClass} placeholder="Pilih Kelas Anda" required direction="up" />
+
+        <Button type="submit" variant="primary" className="w-full py-3.5 mt-1 text-sm font-semibold" disabled={loading}>
+          {loading ? <><Spinner /> Mendaftar...</> : "Buat Akun Siswa"}
+        </Button>
+      </form>
+
+      <div className="mt-6 text-center">
+        <p className="text-sm text-slate-400">
+          Sudah punya akun?{" "}
+          <button onClick={onSwitch} className="text-[#ea580c] font-bold hover:text-[#fb923c] transition-colors cursor-pointer">
+            Masuk di sini
+          </button>
+        </p>
+      </div>
+    </>
+  );
+}
+
+/* ─── Main Page ─── */
+export default function AuthPage() {
+  const [activeTab, setActiveTab] = useState("login"); // "login" | "register"
+
+  const switchToRegister = () => setActiveTab("register");
+  const switchToLogin = () => setActiveTab("login");
+
+  return (
     <div className="min-h-screen flex bg-[#001f18] font-sans">
-      {/* ── LEFT PANEL: Hero Image ── */}
+
+      {/* ══ LEFT PANEL: Cinematic Hero ══ */}
       <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden">
-        {/* Background Image */}
         <Image
           src="/login-hero.png"
           alt="Pendaki di puncak gunung saat matahari terbit"
@@ -54,12 +208,11 @@ export default function LoginPage() {
           priority
           sizes="55vw"
         />
+        {/* Gradient blends */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#0d1f2d]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#001f18]/80 via-transparent to-[#001f18]/20" />
 
-        {/* Gradient overlays for depth */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#001f18]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#001f18]/80 via-transparent to-[#001f18]/30" />
-
-        {/* Bottom left branding overlay */}
+        {/* Branding overlay */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -75,40 +228,53 @@ export default function LoginPage() {
               <br />
               <span className="text-[#ea580c]">Temukan Dirimu.</span>
             </h1>
-            <p className="text-sm text-white/60 leading-relaxed max-w-sm">
-              Bergabunglah bersama komunitas pencinta alam SMK Kimia PGRI Serang. 
+            <p className="text-sm text-white/55 leading-relaxed max-w-sm">
+              Bergabunglah bersama komunitas pencinta alam SMK Kimia PGRI Serang.
               Setiap langkah adalah petualangan baru.
             </p>
           </div>
         </motion.div>
 
-        {/* Subtle floating particles / firefly dots */}
+        {/* Firefly particles */}
         <div className="absolute inset-0 pointer-events-none">
-          <motion.div
-            animate={{ y: [0, -15, 0], opacity: [0.3, 0.7, 0.3] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-[30%] left-[20%] w-1.5 h-1.5 rounded-full bg-[#ea580c]/60"
-          />
-          <motion.div
-            animate={{ y: [0, -20, 0], opacity: [0.2, 0.6, 0.2] }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute top-[50%] left-[60%] w-1 h-1 rounded-full bg-amber-400/50"
-          />
-          <motion.div
-            animate={{ y: [0, -12, 0], opacity: [0.4, 0.8, 0.4] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute top-[70%] left-[35%] w-1 h-1 rounded-full bg-[#ea580c]/40"
-          />
+          {[
+            { top: "30%", left: "20%", size: "w-1.5 h-1.5", dur: 5, delay: 0, color: "bg-[#ea580c]/60" },
+            { top: "50%", left: "60%", size: "w-1 h-1", dur: 7, delay: 1, color: "bg-amber-400/50" },
+            { top: "70%", left: "35%", size: "w-1 h-1", dur: 4, delay: 2, color: "bg-[#ea580c]/40" },
+          ].map((p, i) => (
+            <motion.div
+              key={i}
+              style={{ top: p.top, left: p.left }}
+              animate={{ y: [0, -14, 0], opacity: [0.3, 0.7, 0.3] }}
+              transition={{ duration: p.dur, repeat: Infinity, ease: "easeInOut", delay: p.delay }}
+              className={`absolute ${p.size} rounded-full ${p.color}`}
+            />
+          ))}
         </div>
       </div>
 
-      {/* ── RIGHT PANEL: Login Form ── */}
-      <div className="w-full lg:w-[45%] flex items-center justify-center px-6 py-12 relative overflow-hidden">
-        {/* Ambient background glow (subtle) */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-[30%] -right-[30%] w-[70%] h-[70%] rounded-full bg-[#002d23]/60 blur-[100px]" />
-          <div className="absolute -bottom-[20%] -left-[20%] w-[50%] h-[50%] rounded-full bg-[#ea580c]/5 blur-[100px]" />
+      {/* ══ RIGHT PANEL: Auth Forms ══ */}
+      <div
+        className="w-full lg:w-[45%] flex items-center justify-center px-6 py-12 relative overflow-hidden"
+        style={{
+          background: "linear-gradient(145deg, #0d1f2d 0%, #0f2318 40%, #1a1a2e 100%)",
+        }}
+      >
+        {/* Mesh gradient orbs */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-[25%] -right-[25%] w-[60%] h-[60%] rounded-full bg-[#004d3d]/30 blur-[90px]" />
+          <div className="absolute -bottom-[20%] -left-[15%] w-[55%] h-[55%] rounded-full bg-[#ea580c]/8 blur-[90px]" />
+          <div className="absolute top-[40%] left-[50%] w-[40%] h-[40%] rounded-full bg-[#1a1a4e]/40 blur-[80px]" />
         </div>
+
+        {/* Subtle grid texture overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.03]"
+          style={{
+            backgroundImage: "linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
 
         <motion.div
           initial={{ opacity: 0, x: 30 }}
@@ -116,119 +282,71 @@ export default function LoginPage() {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="w-full max-w-sm relative z-10"
         >
-          {/* Mobile-only branding (hidden on lg+) */}
+          {/* Mobile branding */}
           <div className="lg:hidden text-center mb-8">
-            <span className="inline-block bg-[#ea580c]/90 text-white text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-full mb-3">
+            <span className="inline-block bg-[#ea580c]/90 text-white text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-full mb-2">
               Pencinta Alam
             </span>
-            <p className="text-xs text-zinc-500">SMK Kimia PGRI Serang</p>
+            <p className="text-xs text-slate-500">SMK Kimia PGRI Serang</p>
           </div>
 
-          {/* Form header */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-extrabold text-white tracking-tight">
-              Selamat Datang
-            </h2>
-            <p className="text-sm text-zinc-500 mt-2">
-              Masuk ke akun anggota Anda untuk melanjutkan.
-            </p>
-          </div>
-
-          {/* Error alert */}
-          {error && (
+          {/* ── Tab Toggle ── */}
+          <div className="relative flex bg-white/5 border border-white/10 rounded-2xl p-1 mb-8 backdrop-blur-sm">
+            {/* Sliding pill indicator */}
             <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 rounded-xl bg-red-950/40 border border-red-900/50 text-red-300 text-sm font-medium flex items-center gap-3"
-            >
-              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-              {error}
-            </motion.div>
-          )}
-
-          {/* Login form */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            <Input
-              label="Email"
-              type="email"
-              placeholder="nama@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              layoutId="tab-pill"
+              className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-xl bg-[#ea580c] shadow-lg shadow-[#ea580c]/25"
+              animate={{ left: activeTab === "login" ? "4px" : "calc(50%)" }}
+              transition={{ type: "spring", stiffness: 380, damping: 30 }}
             />
-
-            <div>
-              <Input
-                label="Kata Sandi"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <div className="flex justify-end mt-2">
-                <button
-                  type="button"
-                  className="text-[11px] text-[#ea580c] hover:text-[#fb923c] font-medium transition-colors cursor-pointer"
-                >
-                  Lupa kata sandi?
-                </button>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              variant="primary"
-              className="w-full py-3.5 mt-1 text-sm font-semibold"
-              disabled={loading}
+            <button
+              onClick={switchToLogin}
+              className={`relative z-10 flex-1 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-200 cursor-pointer ${
+                activeTab === "login" ? "text-white" : "text-slate-500 hover:text-slate-300"
+              }`}
             >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Memproses...
-                </span>
-              ) : (
-                "Masuk"
-              )}
-            </Button>
-          </form>
-
-          {/* Divider */}
-          <div className="flex items-center gap-4 my-8">
-            <div className="flex-1 h-px bg-zinc-800" />
-            <span className="text-[10px] text-zinc-600 uppercase tracking-widest font-semibold">atau</span>
-            <div className="flex-1 h-px bg-zinc-800" />
+              Masuk
+            </button>
+            <button
+              onClick={switchToRegister}
+              className={`relative z-10 flex-1 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-200 cursor-pointer ${
+                activeTab === "register" ? "text-white" : "text-slate-500 hover:text-slate-300"
+              }`}
+            >
+              Daftar
+            </button>
           </div>
 
-          {/* Register CTA */}
-          <div className="text-center">
-            <p className="text-sm text-zinc-500">
-              Belum memiliki akun?
-            </p>
-            <Link
-              href="/register"
-              className="inline-flex items-center gap-1.5 mt-3 text-sm text-white font-semibold hover:text-[#ea580c] transition-colors group cursor-pointer"
-            >
-              Daftar Sebagai Anggota
-              <svg
-                className="w-4 h-4 transition-transform group-hover:translate-x-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
+          {/* ── Glassmorphism Card ── */}
+          <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-7 shadow-2xl">
+            <AnimatePresence mode="wait">
+              {activeTab === "login" ? (
+                <motion.div
+                  key="login"
+                  initial={{ opacity: 0, x: -18 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 18 }}
+                  transition={{ duration: 0.22, ease: "easeInOut" }}
+                >
+                  <LoginForm onSwitch={switchToRegister} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="register"
+                  initial={{ opacity: 0, x: 18 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -18 }}
+                  transition={{ duration: 0.22, ease: "easeInOut" }}
+                >
+                  <RegisterForm onSwitch={switchToLogin} />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Bottom tagline */}
-          <p className="text-center text-[10px] text-zinc-700 font-medium uppercase tracking-[0.15em] mt-10">
-            Lestari Alamku, Jaya Sekolahku
+          <p className="text-center text-[10px] text-slate-600 font-medium uppercase tracking-[0.18em] mt-8">
+            Lestari Alamku · Jaya Sekolahku
           </p>
         </motion.div>
       </div>
