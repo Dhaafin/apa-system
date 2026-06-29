@@ -7,6 +7,7 @@ export default function CustomDropdown({
   onChange,
   placeholder = "Pilih opsi...",
   required = false,
+  direction = "down", // "down" | "up"
   className = "",
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,6 +29,11 @@ export default function CustomDropdown({
     setIsOpen(false);
   };
 
+  const positionClass =
+    direction === "up"
+      ? "bottom-[calc(100%+4px)] origin-bottom"
+      : "top-[calc(100%+4px)] origin-top";
+
   return (
     <div ref={dropdownRef} className={`flex flex-col gap-1.5 w-full relative ${className}`}>
       {label && (
@@ -47,7 +53,7 @@ export default function CustomDropdown({
           {value || placeholder}
         </span>
         <svg
-          className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-zinc-400 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -57,38 +63,42 @@ export default function CustomDropdown({
         </svg>
       </button>
 
-      {/* Floating Options Menu */}
-      {isOpen && (
-        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 max-h-60 overflow-y-auto rounded-xl border border-zinc-200 bg-white shadow-xl dark:bg-zinc-950 dark:border-zinc-800 scrollbar-thin">
-          <div className="py-1">
-            {options.map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => handleSelect(option)}
-                className={`w-full px-4 py-2.5 text-sm text-left hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors flex items-center justify-between cursor-pointer ${
-                  value === option
-                    ? "bg-zinc-50 font-semibold text-[#004d3d] dark:bg-zinc-900 dark:text-emerald-400"
-                    : "text-zinc-700 dark:text-zinc-300"
-                }`}
-              >
-                {option}
-                {value === option && (
-                  <svg
-                    className="w-4 h-4 text-[#004d3d] dark:text-emerald-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </button>
-            ))}
-          </div>
+      {/* Floating Options Menu with smooth transition animations */}
+      <div
+        className={`absolute left-0 right-0 z-50 max-h-60 overflow-y-auto rounded-xl border border-zinc-200 bg-white shadow-xl dark:bg-zinc-950 dark:border-zinc-800 scrollbar-thin transition-all duration-200 ease-out ${positionClass} ${
+          isOpen
+            ? "opacity-100 scale-100 pointer-events-auto"
+            : "opacity-0 scale-95 pointer-events-none"
+        }`}
+      >
+        <div className="py-1">
+          {options.map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => handleSelect(option)}
+              className={`w-full px-4 py-2.5 text-sm text-left hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors flex items-center justify-between cursor-pointer ${
+                value === option
+                  ? "bg-zinc-50 font-semibold text-[#004d3d] dark:bg-zinc-900 dark:text-emerald-400"
+                  : "text-zinc-700 dark:text-zinc-300"
+              }`}
+            >
+              {option}
+              {value === option && (
+                <svg
+                  className="w-4 h-4 text-[#004d3d] dark:text-emerald-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }

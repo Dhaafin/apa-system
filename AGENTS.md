@@ -95,3 +95,33 @@ A standard form input field.
   - `required`: boolean
   - `error`: string (error message below input)
 
+### Atom: CustomDropdown (`src/components/atoms/CustomDropdown.jsx` or `@/components/atoms/CustomDropdown`)
+Custom dropdown select field with search/selection support and animation.
+- **Props**:
+  - `label`: string label above dropdown
+  - `options`: array of strings
+  - `value`: current selected value
+  - `onChange`: callback function
+  - `placeholder`: placeholder text
+  - `required`: boolean
+  - `direction`: `'down' | 'up'` (default: `'down'`)
+
+### Atom: DatePicker (`src/components/atoms/DatePicker.jsx` or `@/components/atoms/DatePicker`)
+A stylized calendar date picker input.
+- **Props**:
+  - `label`: string label above date picker
+  - `value`: selected date string
+  - `onChange`: callback
+  - `required`: boolean
+  - `error`: validation error string
+
+### Atom: TimePicker (`src/components/atoms/TimePicker.jsx` or `@/components/atoms/TimePicker`)
+A stylized time picker input.
+- **Props**:
+  - `label`: string label above time picker
+  - `value`: selected time string
+  - `onChange`: callback
+  - `required`: boolean
+  - `error`: validation error string
+
+

@@ -126,7 +126,7 @@ export default function RegisterPage() {
                 required
               />
 
-              {/* Custom Dropdown select box */}
+              {/* Custom Dropdown select box - pops up upwards */}
               <CustomDropdown
                 label="Kelas"
                 options={KELAS_OPTIONS}
@@ -134,6 +134,7 @@ export default function RegisterPage() {
                 onChange={setSelectedClass}
                 placeholder="Pilih Kelas Anda"
                 required
+                direction="up"
               />
 
               <Button
