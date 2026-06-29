@@ -83,7 +83,7 @@ export default function DashboardLayout({ children }) {
   ];
 
   return (
-    <div className="min-h-screen bg-[#001410] flex text-zinc-100 font-sans antialiased overflow-hidden">
+    <div className="h-screen bg-[#001410] flex text-zinc-100 font-sans antialiased overflow-hidden">
       {/* ══ SLEEK SIDEBAR ══ */}
       <aside className="w-80 bg-[#001c16]/95 backdrop-blur-xl text-white flex flex-col justify-between p-6 shrink-0 border-r border-white/5 relative z-20">
         
@@ -104,7 +104,7 @@ export default function DashboardLayout({ children }) {
               </Text>
             </div>
           </div>
-
+ 
           {/* Quotation / Tagline Card */}
           <div className="border border-white/5 rounded-2xl px-4 py-3 bg-white/5 text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 rounded-full blur-xl pointer-events-none" />
@@ -112,16 +112,7 @@ export default function DashboardLayout({ children }) {
               &ldquo;Keluarga Besar KAPALA&rdquo;
             </Text>
           </div>
-
-          {/* Cloud Connection Badge */}
-          <div className="flex items-center justify-between px-4 py-2.5 rounded-2xl border border-white/5 bg-black/20 text-xs">
-            <Text variant="caption" color="muted" className="font-medium">Sistem Cloud:</Text>
-            <div className="flex items-center gap-1.5 font-bold text-emerald-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Aktif
-            </div>
-          </div>
-
+ 
           {/* Navigation Items */}
           <nav className="flex flex-col gap-1 mt-3">
             {navItems.map((item) => {
