@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Button from "@/components/atoms/Button";
 import Table from "@/components/atoms/Table";
 import Text from "@/components/atoms/Text";
+import Image from "next/image";
 
 export default function AnggotaPage() {
   const [students, setStudents] = useState([]);
@@ -163,20 +164,39 @@ export default function AnggotaPage() {
   return (
     <div className="flex-1 flex flex-col gap-6 font-sans">
       
-      {/* Header Block */}
-      <div className="flex items-center justify-between bg-white border border-zinc-200/80 p-6 rounded-[32px] shadow-sm">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[#004d3d] text-2xl font-bold">👥</span>
-            <Text variant="h2" className="text-[#002d23] font-bold">Manajemen Anggota</Text>
-          </div>
-          <Text variant="body" color="muted">
-            Daftar lengkap siswa pencinta alam aktif dan persetujuan registrasi
-          </Text>
+      {/* ══ IMMERSIVE HERO BANNER CARD ══ */}
+      <div className="w-full h-[220px] bg-zinc-950 rounded-[32px] overflow-hidden shadow-xl shadow-emerald-950/10 border border-white/5 relative flex items-center justify-between">
+        
+        {/* Landscape backdrop hero image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/anggota-banner.png"
+            alt="Pendaki di jalan setapak hutan"
+            fill
+            className="object-cover opacity-85"
+            priority
+          />
+          {/* Subtle gradient overlays for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#001712] via-[#001712]/90 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#001712]/50 to-transparent" />
         </div>
-        <Button variant="primary" className="bg-[#004d3d] hover:bg-[#0b5c46]">
-          <span>+</span> Tambah Anggota Baru
-        </Button>
+
+        {/* Content text */}
+        <div className="relative z-10 p-8 max-w-lg md:max-w-xl lg:max-w-2xl flex items-center justify-between w-full">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[#ea580c] text-2xl font-bold">👥</span>
+              <Text variant="h2" className="text-white font-extrabold leading-tight tracking-tight">Manajemen Anggota</Text>
+            </div>
+            <Text variant="body" className="text-slate-300 mt-1 text-sm leading-relaxed max-w-md">
+              Daftar lengkap siswa pencinta alam aktif dan persetujuan registrasi anggota baru.
+            </Text>
+          </div>
+
+          <Button variant="secondary" className="py-2.5 px-5 font-bold shadow-md shadow-[#ea580c]/25 rounded-2xl shrink-0 hidden sm:flex">
+            Tambah Anggota
+          </Button>
+        </div>
       </div>
 
       {/* Filter & Search Bar */}
