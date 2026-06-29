@@ -7,6 +7,7 @@ import Button from "@/components/atoms/Button";
 export default function DashboardPage() {
   const router = useRouter();
   const [students, setStudents] = useState([]);
+  const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0 });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedClass, setSelectedClass] = useState("ALL");
@@ -25,10 +26,24 @@ export default function DashboardPage() {
       }
       const data = await response.json();
       setStudents(data.students || []);
+      setStats(data.stats || { total: 0, pending: 0, approved: 0, rejected: 0 });
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+      if (response.ok) {
+        router.push("/login");
+      }
+    } catch (err) {
+      console.error("Logout failed:", err);
     }
   };
 
@@ -131,6 +146,12 @@ export default function DashboardPage() {
           <p className="text-[11px] text-[#eab308]/60 text-center font-medium">
             Lestari Alamku, Jaya Sekolahku!
           </p>
+          <button
+            onClick={handleLogout}
+            className="w-full py-2.5 rounded-full border border-red-500/30 hover:bg-red-500/10 text-red-400 hover:text-red-300 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
+          >
+            <span>🚪</span> Keluar / Logout
+          </button>
           <button className="w-full py-2.5 rounded-full border border-white/10 hover:bg-white/5 text-zinc-400 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all">
             <span>🔄</span> Reset ke Default
           </button>
@@ -153,6 +174,26 @@ export default function DashboardPage() {
           <Button variant="primary" className="bg-[#004d3d] hover:bg-[#0b5c46]">
             <span>+</span> Tambah Anggota Baru
           </Button>
+        </div>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white border border-zinc-200 p-5 rounded-3xl shadow-sm flex flex-col gap-1">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Total Anggota</span>
+            <span className="text-3xl font-black text-zinc-900">{stats.total}</span>
+          </div>
+          <div className="bg-white border border-zinc-200 p-5 rounded-3xl shadow-sm flex flex-col gap-1">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Anggota Aktif</span>
+            <span className="text-3xl font-black text-emerald-600">{stats.approved}</span>
+          </div>
+          <div className="bg-white border border-zinc-200 p-5 rounded-3xl shadow-sm flex flex-col gap-1">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Menunggu Approval</span>
+            <span className="text-3xl font-black text-amber-500">{stats.pending}</span>
+          </div>
+          <div className="bg-white border border-zinc-200 p-5 rounded-3xl shadow-sm flex flex-col gap-1">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Ditolak</span>
+            <span className="text-3xl font-black text-red-500">{stats.rejected}</span>
+          </div>
         </div>
 
         {/* Filter & Search Bar */}

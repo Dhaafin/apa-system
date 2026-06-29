@@ -35,9 +35,18 @@ export async function GET() {
       where: eq(users.role, "SISWA"),
     });
 
+    // Compute stats
+    const stats = {
+      total: students.length,
+      pending: students.filter((s) => s.status === "PENDING").length,
+      approved: students.filter((s) => s.status === "APPROVED").length,
+      rejected: students.filter((s) => s.status === "REJECTED").length,
+    };
+
     return NextResponse.json({
       success: true,
       students,
+      stats,
     });
   } catch (error) {
     console.error("Fetch students error:", error);
