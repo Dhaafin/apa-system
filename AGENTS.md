@@ -71,3 +71,27 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Read `.agents/docs/PROJECT_LEDGER.md` and `AGENTS.md`
 - You may read source files but NEVER write to them
 - Produce a clear, structured status report comparing dates and detecting slippage
+
+## Design System & Reusable Components
+All frontend components are developed inside `src/components/` following **Atomic Design** principles using `.jsx` extensions.
+
+### Atom: Button (`src/components/atoms/Button.jsx` or `@/components/atoms/Button`)
+A configurable button for standard UI interactions.
+- **Props**:
+  - `variant`: `'primary'` (SIPA green), `'secondary'` (SIPA orange/amber), `'outline'`, `'ghost'`
+  - `type`: `'button' | 'submit'`
+  - `onClick`: `function`
+  - `disabled`: `boolean`
+  - `className`: additional Tailwind classes
+
+### Atom: Input (`src/components/atoms/Input.jsx` or `@/components/atoms/Input`)
+A standard form input field.
+- **Props**:
+  - `label`: string label above input
+  - `type`: text, email, password, etc.
+  - `value`: input value
+  - `onChange`: callback
+  - `placeholder`: placeholder text
+  - `required`: boolean
+  - `error`: string (error message below input)
+
