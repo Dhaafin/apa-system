@@ -106,6 +106,7 @@ export default function AcaraPage() {
       showFlashMessage("success", "Acara berhasil dibuat!");
     } catch (err) {
       setFormError(err.message);
+      showFlashMessage("error", err.message);
     } finally {
       setSubmitLoading(false);
     }
@@ -163,6 +164,7 @@ export default function AcaraPage() {
       showFlashMessage("success", "Acara berhasil diperbarui!");
     } catch (err) {
       setEditFormError(err.message);
+      showFlashMessage("error", err.message);
     } finally {
       setEditSubmitting(false);
     }
