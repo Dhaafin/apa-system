@@ -55,9 +55,24 @@ export default function DashboardLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const [adminEmail, setAdminEmail] = useState("");
+  const [adminName, setAdminName] = useState("");
 
   useEffect(() => {
-    setAdminEmail("muhammadfc44@gmail.com");
+    async function fetchMe() {
+      try {
+        const response = await fetch("/api/auth/me");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.user) {
+            setAdminEmail(data.user.email || "");
+            setAdminName(data.user.name || "");
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load profile:", err);
+      }
+    }
+    fetchMe();
   }, []);
 
   const handleLogout = async () => {
@@ -158,7 +173,7 @@ export default function DashboardLayout({ children }) {
               </div>
               <div className="min-w-0 flex-1">
                 <Text variant="caption" className="font-bold text-white block truncate">
-                  Admin Guru
+                  {adminName || "Admin Guru"}
                 </Text>
                 <span className="text-[10px] text-slate-500 truncate block">
                   {adminEmail}

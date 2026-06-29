@@ -13,8 +13,9 @@ export default function DashboardOverviewPage() {
   const [loading, setLoading] = useState(true);
   const [activities, setActivities] = useState([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
+  const [userName, setUserName] = useState("User");
 
-  // Fetch student stats
+  // Fetch stats, activities, and user profile
   useEffect(() => {
     async function fetchStats() {
       try {
@@ -44,8 +45,23 @@ export default function DashboardOverviewPage() {
       }
     }
 
+    async function fetchUser() {
+      try {
+        const response = await fetch("/api/auth/me");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.user) {
+            setUserName(data.user.name || "User");
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     fetchStats();
     fetchActivities();
+    fetchUser();
   }, []);
 
   const tableHeaders = [
@@ -120,7 +136,7 @@ export default function DashboardOverviewPage() {
             <Text variant="h1" className="text-white text-3xl font-extrabold leading-tight tracking-tight">
               Selamat Datang kembali,
               <br />
-              <span className="text-[#ea580c]">Dhaafin Makhalingga</span>
+              <span className="text-[#ea580c]">{userName}</span>
             </Text>
             <Text variant="body" className="text-slate-300 mt-2 text-sm leading-relaxed max-w-md">
               Kelola database anggota, jadwal pendakian, ekspedisi konservasi, absensi, serta galeri kegiatan Pencinta Alam SMK Kimia PGRI Serang.
