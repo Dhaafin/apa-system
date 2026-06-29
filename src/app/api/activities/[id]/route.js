@@ -37,7 +37,7 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json();
-    const { name, description, imageUrl, date } = body;
+    const { name, description, imageUrl, date, isExpedition } = body;
 
     if (!name || !description || !date) {
       return NextResponse.json(
@@ -53,6 +53,7 @@ export async function PUT(request, { params }) {
         description,
         imageUrl: imageUrl || null,
         date: new Date(date),
+        isExpedition: !!isExpedition,
       })
       .where(eq(activities.id, activityId))
       .returning();

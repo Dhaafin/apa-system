@@ -25,6 +25,7 @@ export const activities = pgTable("activities", {
   imageUrl: text("image_url"),
   date: timestamp("date").notNull(),
   attendanceOpen: boolean("attendance_open").default(false).notNull(),
+  isExpedition: boolean("is_expedition").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()

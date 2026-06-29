@@ -10,15 +10,15 @@ import Text from "@/components/atoms/Text";
 import Image from "next/image";
 import { useFlashMessage } from "@/context/FlashMessageContext";
 
-const EMPTY_FORM = { name: "", description: "", date: "", time: "", imageUrl: "", isExpedition: false };
+const EMPTY_FORM = { name: "", description: "", date: "", time: "", imageUrl: "", isExpedition: true };
 
-export default function AcaraPage() {
+export default function EkspedisiPage() {
   const showFlashMessage = useFlashMessage();
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState("SISWA");
   const [userId, setUserId] = useState(null);
-  const [actionLoadingId, setActionLoadingId] = useState(null); // to track loading states of individual cards (e.g. Absen / Toggle)
+  const [actionLoadingId, setActionLoadingId] = useState(null);
 
   // Create modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -78,7 +78,6 @@ export default function AcaraPage() {
         throw new Error(data.message || "Gagal memproses pendaftaran.");
       }
       
-      // Update local participants state list
       setParticipants(prev =>
         prev.map(p =>
           p.id === participantId
@@ -88,7 +87,7 @@ export default function AcaraPage() {
       );
 
       showFlashMessage("success", `Kehadiran berhasil ${action === "APPROVE" ? "disetujui" : "ditolak"}!`);
-      await fetchActivities(); // update count on cards
+      await fetchActivities();
     } catch (err) {
       showFlashMessage("error", err.message);
     } finally {
@@ -215,13 +214,13 @@ export default function AcaraPage() {
       });
 
       const result = await response.json();
-      if (!response.ok) throw new Error(result.message || "Gagal membuat acara.");
+      if (!response.ok) throw new Error(result.message || "Gagal membuat ekspedisi.");
 
       setFormData(EMPTY_FORM);
       setImageFile(null);
       setIsModalOpen(false);
       await fetchActivities();
-      showFlashMessage("success", "Acara berhasil dibuat!");
+      showFlashMessage("success", "Ekspedisi berhasil dibuat!");
     } catch (err) {
       setFormError(err.message);
       showFlashMessage("error", err.message);
@@ -242,7 +241,7 @@ export default function AcaraPage() {
       date: dateStr,
       time: timeStr,
       imageUrl: activity.imageUrl || "",
-      isExpedition: activity.isExpedition || false,
+      isExpedition: activity.isExpedition ?? true,
     });
     setEditImageFile(null);
     setEditFormError("");
@@ -276,12 +275,12 @@ export default function AcaraPage() {
       });
 
       const result = await response.json();
-      if (!response.ok) throw new Error(result.message || "Gagal memperbarui acara.");
+      if (!response.ok) throw new Error(result.message || "Gagal memperbarui ekspedisi.");
 
       setIsEditModalOpen(false);
       setSelectedActivity(null);
       await fetchActivities();
-      showFlashMessage("success", "Acara berhasil diperbarui!");
+      showFlashMessage("success", "Ekspedisi berhasil diperbarui!");
     } catch (err) {
       setEditFormError(err.message);
       showFlashMessage("error", err.message);
@@ -306,12 +305,12 @@ export default function AcaraPage() {
         method: "DELETE",
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.message || "Gagal menghapus acara.");
+      if (!response.ok) throw new Error(result.message || "Gagal menghapus ekspedisi.");
 
       setIsDeleteModalOpen(false);
       setActivityToDelete(null);
       await fetchActivities();
-      showFlashMessage("success", "Acara berhasil dihapus!");
+      showFlashMessage("success", "Ekspedisi berhasil dihapus!");
     } catch (err) {
       showFlashMessage("error", err.message);
       setIsDeleteModalOpen(false);
@@ -330,8 +329,8 @@ export default function AcaraPage() {
       )}
 
       <Input
-        label="Nama Kegiatan"
-        placeholder="Contoh: Pendakian Gunung Gede"
+        label="Nama Ekspedisi"
+        placeholder="Contoh: Ekspedisi TN Ujung Kulon"
         value={data.name}
         onChange={(e) => setData((p) => ({ ...p, name: e.target.value }))}
         required
@@ -340,11 +339,11 @@ export default function AcaraPage() {
 
       <div className="flex flex-col gap-1.5 w-full">
         <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
-          Deskripsi Kegiatan
+          Deskripsi Ekspedisi
           <span className="text-red-500 ml-1">*</span>
         </label>
         <textarea
-          placeholder="Jelaskan detail tujuan, persyaratan, perlengkapan dll..."
+          placeholder="Jelaskan detail tujuan, peta jalur, perlengkapan ekspedisi..."
           value={data.description}
           onChange={(e) => setData((p) => ({ ...p, description: e.target.value }))}
           required
@@ -372,7 +371,7 @@ export default function AcaraPage() {
 
       <div className="flex flex-col gap-1.5 w-full">
         <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
-          Foto Banner Kegiatan
+          Foto Banner Ekspedisi
         </label>
         <input
           type="file"
@@ -416,10 +415,10 @@ export default function AcaraPage() {
         <div className="relative z-10 w-full p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="space-y-2">
             <Text variant="h2" className="text-white font-extrabold tracking-tight font-heading">
-              Jadwal &amp; Acara
+              Log Ekspedisi
             </Text>
             <Text variant="body" color="muted" className="text-slate-300 max-w-lg">
-              Daftar rencana petualangan, latihan, dan agenda organisasi KAPALA.
+              Daftar rencana dan riwayat ekspedisi eksplorasi serta konservasi KAPALA.
             </Text>
           </div>
 
@@ -434,7 +433,7 @@ export default function AcaraPage() {
               }}
               className="py-3 px-6 font-bold shadow-md shadow-[#ea580c]/25 rounded-2xl shrink-0 self-start sm:self-center"
             >
-              Buat Acara Baru
+              Buat Ekspedisi Baru
             </Button>
           )}
         </div>
@@ -443,15 +442,15 @@ export default function AcaraPage() {
       {/* Activities Grid */}
       {loading ? (
         <div className="p-12 text-center text-zinc-500 font-medium bg-white rounded-3xl border border-zinc-200">
-          Memuat daftar acara...
+          Memuat daftar ekspedisi...
         </div>
-      ) : activities.filter((a) => !a.isExpedition).length === 0 ? (
+      ) : activities.filter((a) => a.isExpedition).length === 0 ? (
         <div className="p-12 text-center text-zinc-400 font-medium bg-white rounded-3xl border border-zinc-200">
-          Belum ada jadwal acara yang terdaftar.
+          Belum ada log ekspedisi yang terdaftar.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {activities.filter((a) => !a.isExpedition).map((activity) => {
+          {activities.filter((a) => a.isExpedition).map((activity) => {
             const formattedDate = new Date(activity.date).toLocaleDateString("id-ID", {
               weekday: "long",
               year: "numeric",
@@ -567,7 +566,7 @@ export default function AcaraPage() {
                           <button
                             type="button"
                             onClick={() => openEdit(activity)}
-                            title="Edit acara"
+                            title="Edit ekspedisi"
                             className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border border-[#002d23]/20 text-[#002d23] hover:bg-[#002d23]/5 transition-colors cursor-pointer"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -578,7 +577,7 @@ export default function AcaraPage() {
                           <button
                             type="button"
                             onClick={() => openDelete(activity)}
-                            title="Hapus acara"
+                            title="Hapus ekspedisi"
                             className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -601,7 +600,7 @@ export default function AcaraPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Buat Acara Kegiatan Baru"
+        title="Buat Log Ekspedisi Baru"
         footer={
           <div className="flex gap-2 w-full justify-end">
             <Button variant="outline" onClick={() => setIsModalOpen(false)} disabled={submitLoading}>
@@ -613,7 +612,7 @@ export default function AcaraPage() {
               disabled={submitLoading || !formData.name || !formData.description || !formData.date || !formData.time}
               className="bg-[#004d3d] hover:bg-[#00382c]"
             >
-              {submitLoading ? "Menyimpan..." : "Simpan Acara"}
+              {submitLoading ? "Menyimpan..." : "Simpan Ekspedisi"}
             </Button>
           </div>
         }
@@ -627,7 +626,7 @@ export default function AcaraPage() {
       <Modal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        title="Edit Acara Kegiatan"
+        title="Edit Log Ekspedisi"
         footer={
           <div className="flex gap-2 w-full justify-end">
             <Button variant="outline" onClick={() => setIsEditModalOpen(false)} disabled={editSubmitting}>
@@ -653,7 +652,7 @@ export default function AcaraPage() {
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        title="Hapus Acara"
+        title="Hapus Log Ekspedisi"
         footer={
           <div className="flex gap-2 w-full justify-end">
             <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)} disabled={deleteSubmitting}>
@@ -665,7 +664,7 @@ export default function AcaraPage() {
               disabled={deleteSubmitting}
               className="!bg-red-600 hover:!bg-red-700"
             >
-              {deleteSubmitting ? "Menghapus..." : "Ya, Hapus Acara"}
+              {deleteSubmitting ? "Menghapus..." : "Ya, Hapus Ekspedisi"}
             </Button>
           </div>
         }
@@ -682,7 +681,7 @@ export default function AcaraPage() {
                 Tindakan ini tidak dapat dibatalkan
               </Text>
               <Text variant="caption" color="muted">
-                Semua data terkait acara ini, termasuk daftar peserta, akan ikut terhapus secara permanen.
+                Semua data terkait ekspedisi ini, termasuk daftar peserta, akan ikut terhapus secara permanen.
               </Text>
             </div>
           </div>
@@ -690,7 +689,7 @@ export default function AcaraPage() {
           {activityToDelete && (
             <div className="p-4 rounded-xl bg-white/5 border border-white/10">
               <Text variant="caption" color="muted" className="uppercase tracking-wider text-[10px] font-bold mb-1">
-                Acara yang akan dihapus
+                Ekspedisi yang akan dihapus
               </Text>
               <Text variant="body" className="text-white font-bold">{activityToDelete.name}</Text>
               <Text variant="caption" color="muted">

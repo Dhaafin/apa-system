@@ -27,6 +27,7 @@ export async function GET() {
         imageUrl: activities.imageUrl,
         date: activities.date,
         attendanceOpen: activities.attendanceOpen,
+        isExpedition: activities.isExpedition,
         createdAt: activities.createdAt,
         participantCount: sql`count(${activityParticipants.userId})::int`.as("participant_count"),
       })
@@ -99,7 +100,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { name, description, imageUrl, date } = body;
+    const { name, description, imageUrl, date, isExpedition } = body;
 
     if (!name || !description || !date) {
       return NextResponse.json(
@@ -115,6 +116,7 @@ export async function POST(request) {
         description,
         imageUrl: imageUrl || null,
         date: new Date(date),
+        isExpedition: !!isExpedition,
       })
       .returning();
 
