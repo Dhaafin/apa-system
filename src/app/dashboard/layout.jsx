@@ -98,8 +98,11 @@ export default function DashboardLayout({ children }) {
   ];
 
   const filteredNavItems = navItems.filter((item) => {
-    if (item.path === "/dashboard/anggota" && userRole === "KETUA") {
-      return false;
+    if (userRole === "SISWA") {
+      return item.path === "/dashboard/acara" || item.path === "/dashboard/ekspedisi";
+    }
+    if (userRole === "KETUA") {
+      return item.path !== "/dashboard/anggota";
     }
     return true;
   });

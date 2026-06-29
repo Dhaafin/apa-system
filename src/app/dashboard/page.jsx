@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import Button from "@/components/atoms/Button";
@@ -9,6 +10,7 @@ import { motion } from "framer-motion";
 import Table from "@/components/atoms/Table";
 
 export default function DashboardOverviewPage() {
+  const router = useRouter();
   const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0 });
   const [loading, setLoading] = useState(true);
   const [activities, setActivities] = useState([]);
@@ -52,6 +54,9 @@ export default function DashboardOverviewPage() {
           const data = await response.json();
           if (data.success && data.user) {
             setUserName(data.user.name || "User");
+            if (data.user.role === "SISWA") {
+              router.push("/dashboard/acara");
+            }
           }
         }
       } catch (err) {
@@ -62,7 +67,7 @@ export default function DashboardOverviewPage() {
     fetchStats();
     fetchActivities();
     fetchUser();
-  }, []);
+  }, [router]);
 
   const tableHeaders = [
     {
