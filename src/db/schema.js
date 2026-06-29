@@ -39,5 +39,6 @@ export const activityParticipants = pgTable("activity_participants", {
   activityId: integer("activity_id")
     .references(() => activities.id, { onDelete: "cascade" })
     .notNull(),
+  status: statusEnum("status").default("PENDING").notNull(),
   registeredAt: timestamp("registered_at").defaultNow().notNull(),
 });
