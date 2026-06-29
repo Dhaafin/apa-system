@@ -85,7 +85,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { name, email, password, className } = body;
+    const { name, email, password, className, role } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -114,7 +114,7 @@ export async function POST(request) {
       name,
       email,
       passwordHash,
-      role: "SISWA",
+      role: ["GURU", "SISWA", "KETUA"].includes(role) ? role : "SISWA",
       status: "APPROVED",
       class: className || null,
     }).returning();
@@ -160,7 +160,7 @@ export async function PUT(request) {
     }
 
     const body = await request.json();
-    const { id, name, email, password, className, status } = body;
+    const { id, name, email, password, className, status, role } = body;
 
     if (!id || !name || !email) {
       return NextResponse.json(
@@ -186,6 +186,10 @@ export async function PUT(request) {
       email,
       class: className || null,
     };
+
+    if (role && ["GURU", "SISWA", "KETUA"].includes(role)) {
+      updateData.role = role;
+    }
 
     if (status) {
       updateData.status = status;

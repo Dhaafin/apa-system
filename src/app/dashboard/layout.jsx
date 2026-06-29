@@ -56,6 +56,7 @@ export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const [adminEmail, setAdminEmail] = useState("");
   const [adminName, setAdminName] = useState("");
+  const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
     async function fetchMe() {
@@ -66,6 +67,7 @@ export default function DashboardLayout({ children }) {
           if (data.success && data.user) {
             setAdminEmail(data.user.email || "");
             setAdminName(data.user.name || "");
+            setUserRole(data.user.role || "");
           }
         }
       } catch (err) {
@@ -96,6 +98,13 @@ export default function DashboardLayout({ children }) {
     { name: "Galeri Foto", path: "/dashboard/galeri", icon: Icons.galeri },
     { name: "Pengaturan", path: "/dashboard/pengaturan", icon: Icons.pengaturan },
   ];
+
+  const filteredNavItems = navItems.filter((item) => {
+    if (item.path === "/dashboard/anggota" && userRole === "KETUA") {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <div className="h-screen bg-[#001410] flex text-zinc-100 font-sans antialiased overflow-hidden">
@@ -130,7 +139,7 @@ export default function DashboardLayout({ children }) {
  
           {/* Navigation Items */}
           <nav className="flex flex-col gap-1 mt-3">
-            {navItems.map((item) => {
+            {filteredNavItems.map((item) => {
               const isActive = pathname === item.path;
               return (
                 <Link

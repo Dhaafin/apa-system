@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { activityParticipants, users } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, or } from "drizzle-orm";
 import { cookies } from "next/headers";
 
 export async function POST(request) {
@@ -18,9 +18,12 @@ export async function POST(request) {
 
     const session = JSON.parse(sessionCookie.value);
 
-    // Verify user is GURU
+    // Verify user is GURU or KETUA
     const admin = await db.query.users.findFirst({
-      where: and(eq(users.email, session.email), eq(users.role, "GURU")),
+      where: and(
+        eq(users.email, session.email),
+        or(eq(users.role, "GURU"), eq(users.role, "KETUA"))
+      ),
     });
 
     if (!admin) {

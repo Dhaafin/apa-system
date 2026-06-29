@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Button from "@/components/atoms/Button";
 import Table from "@/components/atoms/Table";
 import Text from "@/components/atoms/Text";
@@ -19,6 +20,7 @@ const KELAS_OPTIONS = [
 
 export default function AnggotaPage() {
   const showFlashMessage = useFlashMessage();
+  const router = useRouter();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -28,14 +30,14 @@ export default function AnggotaPage() {
   
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ name: "", email: "", password: "", className: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", password: "", className: "", role: "SISWA" });
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   // Edit states
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [editFormData, setEditFormData] = useState({ name: "", email: "", password: "", className: "", status: "" });
+  const [editFormData, setEditFormData] = useState({ name: "", email: "", password: "", className: "", status: "", role: "SISWA" });
   const [editFormError, setEditFormError] = useState("");
   const [editSubmitting, setEditSubmitting] = useState(false);
 
@@ -67,6 +69,9 @@ export default function AnggotaPage() {
           const data = await response.json();
           if (data.success && data.user) {
             setAdminEmail(data.user.email || "");
+            if (data.user.role !== "GURU") {
+              router.push("/dashboard");
+            }
           }
         }
       } catch (err) {
@@ -75,7 +80,7 @@ export default function AnggotaPage() {
     }
     fetchMe();
     fetchStudents();
-  }, []);
+  }, [router]);
 
   const handleAction = async (studentId, action) => {
     try {
@@ -114,7 +119,7 @@ export default function AnggotaPage() {
       if (!response.ok) {
         throw new Error(data.message || "Gagal membuat anggota baru");
       }
-      setFormData({ name: "", email: "", password: "", className: "" });
+      setFormData({ name: "", email: "", password: "", className: "", role: "SISWA" });
       setIsModalOpen(false);
       showFlashMessage("success", "Anggota baru berhasil dibuat dan langsung diaktifkan!");
       fetchStudents();
@@ -133,6 +138,7 @@ export default function AnggotaPage() {
       password: "", // Optional, blank by default
       className: student.class || "",
       status: student.status || "APPROVED",
+      role: student.role || "SISWA",
     });
     setEditFormError("");
     setIsEditModalOpen(true);
@@ -230,9 +236,27 @@ export default function AnggotaPage() {
     {
       key: "role",
       label: "Jabatan",
-      render: () => (
-        <span className="font-bold text-zinc-400 text-xs uppercase tracking-wide">Anggota</span>
-      )
+      render: (row) => {
+        if (row.role === "GURU") {
+          return (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 uppercase tracking-wider text-[10px]">
+              Guru
+            </span>
+          );
+        }
+        if (row.role === "KETUA") {
+          return (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20 uppercase tracking-wider text-[10px]">
+              Ketua
+            </span>
+          );
+        }
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-zinc-500/10 text-zinc-500 border border-zinc-500/20 uppercase tracking-wider text-[10px]">
+            Siswa
+          </span>
+        );
+      }
     },
     {
       key: "status",
@@ -492,6 +516,15 @@ export default function AnggotaPage() {
             onChange={(val) => setFormData({ ...formData, className: val })}
             placeholder="Pilih kelas siswa..."
             required
+            direction="down"
+          />
+          <CustomDropdown
+            label="Jabatan (Role)"
+            options={["SISWA", "KETUA", "GURU"]}
+            value={formData.role}
+            onChange={(val) => setFormData({ ...formData, role: val })}
+            placeholder="Pilih jabatan..."
+            required
             direction="up"
           />
         </form>
@@ -584,6 +617,15 @@ export default function AnggotaPage() {
             value={editFormData.className}
             onChange={(val) => setEditFormData({ ...editFormData, className: val })}
             placeholder="Pilih kelas siswa..."
+            required
+            direction="down"
+          />
+          <CustomDropdown
+            label="Jabatan (Role)"
+            options={["SISWA", "KETUA", "GURU"]}
+            value={editFormData.role}
+            onChange={(val) => setEditFormData({ ...editFormData, role: val })}
+            placeholder="Pilih jabatan..."
             required
             direction="down"
           />

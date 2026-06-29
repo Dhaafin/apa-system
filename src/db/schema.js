@@ -1,6 +1,6 @@
 import { pgTable, serial, text, timestamp, pgEnum, integer } from "drizzle-orm/pg-core";
 
-export const roleEnum = pgEnum("user_role", ["GURU", "SISWA"]);
+export const roleEnum = pgEnum("user_role", ["GURU", "SISWA", "KETUA"]);
 export const statusEnum = pgEnum("user_status", ["PENDING", "APPROVED", "REJECTED"]);
 
 export const users = pgTable("users", {

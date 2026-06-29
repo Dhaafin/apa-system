@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { activities } from "@/db/schema";
-import { users } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { activities, users } from "@/db/schema";
+import { eq, and, or } from "drizzle-orm";
 import { cookies } from "next/headers";
 
 async function getAdmin() {
@@ -12,7 +11,10 @@ async function getAdmin() {
 
   const session = JSON.parse(sessionCookie.value);
   const admin = await db.query.users.findFirst({
-    where: and(eq(users.email, session.email), eq(users.role, "GURU")),
+    where: and(
+      eq(users.email, session.email),
+      or(eq(users.role, "GURU"), eq(users.role, "KETUA"))
+    ),
   });
   return admin || null;
 }

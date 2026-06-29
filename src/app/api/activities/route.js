@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { activities, activityParticipants } from "@/db/schema";
 import { users } from "@/db/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, or, sql } from "drizzle-orm";
 import { cookies } from "next/headers";
 
 // Fetch all activities
@@ -37,7 +37,7 @@ export async function GET() {
   }
 }
 
-// Create new activity (Guru only)
+// Create new activity (Guru or Ketua only)
 export async function POST(request) {
   try {
     const cookieStore = await cookies();
@@ -52,9 +52,12 @@ export async function POST(request) {
 
     const session = JSON.parse(sessionCookie.value);
 
-    // Verify user is GURU
+    // Verify user is GURU or KETUA
     const admin = await db.query.users.findFirst({
-      where: and(eq(users.email, session.email), eq(users.role, "GURU")),
+      where: and(
+        eq(users.email, session.email),
+        or(eq(users.role, "GURU"), eq(users.role, "KETUA"))
+      ),
     });
 
     if (!admin) {
