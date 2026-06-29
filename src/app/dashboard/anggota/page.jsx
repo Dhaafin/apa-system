@@ -8,6 +8,7 @@ import Image from "next/image";
 import Modal from "@/components/atoms/Modal";
 import Input from "@/components/atoms/Input";
 import CustomDropdown from "@/components/atoms/CustomDropdown";
+import CustomDropdownWhite from "@/components/atoms/CustomDropdownWhite";
 import { useFlashMessage } from "@/context/FlashMessageContext";
 
 const KELAS_OPTIONS = [
@@ -375,34 +376,21 @@ export default function AnggotaPage() {
         </div>
 
         <div className="flex gap-4 items-center">
-          <div className="flex items-center gap-2">
-            <Text variant="caption" color="muted" className="font-bold">Kelas:</Text>
-            <select
-              value={selectedClass}
-              onChange={(e) => setSelectedClass(e.target.value)}
-              className="px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700 outline-none focus:ring-2 focus:ring-[#ea580c]"
-            >
-              {classes.map((cls) => (
-                <option key={cls} value={cls}>
-                  {cls === "ALL" ? "Semua Kelas" : cls}
-                </option>
-              ))}
-            </select>
-          </div>
+          <CustomDropdownWhite
+            label="Kelas:"
+            options={classes}
+            value={selectedClass}
+            onChange={setSelectedClass}
+            placeholder="Semua Kelas"
+          />
 
-          <div className="flex items-center gap-2">
-            <Text variant="caption" color="muted" className="font-bold">Status:</Text>
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700 outline-none focus:ring-2 focus:ring-[#ea580c]"
-            >
-              <option value="ALL">Semua Status</option>
-              <option value="PENDING">Pending</option>
-              <option value="APPROVED">Approved</option>
-              <option value="REJECTED">Rejected</option>
-            </select>
-          </div>
+          <CustomDropdownWhite
+            label="Status:"
+            options={["ALL", "PENDING", "APPROVED", "REJECTED"]}
+            value={selectedStatus}
+            onChange={setSelectedStatus}
+            placeholder="Semua Status"
+          />
         </div>
       </div>
 

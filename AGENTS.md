@@ -106,6 +106,16 @@ Custom dropdown select field with search/selection support and animation.
   - `required`: boolean
   - `direction`: `'down' | 'up'` (default: `'down'`)
 
+### Atom: CustomDropdownWhite (`src/components/atoms/CustomDropdownWhite.jsx` or `@/components/atoms/CustomDropdownWhite`)
+White theme dropdown select field with search/selection support and animation.
+- **Props**:
+  - `label`: string label next to dropdown
+  - `options`: array of strings
+  - `value`: current selected value
+  - `onChange`: callback function
+  - `placeholder`: placeholder text
+  - `direction`: `'down' | 'up'` (default: `'down'`)
+
 ### Atom: DatePicker (`src/components/atoms/DatePicker.jsx` or `@/components/atoms/DatePicker`)
 A stylized calendar date picker input.
 - **Props**:
