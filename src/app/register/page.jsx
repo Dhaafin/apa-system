@@ -77,10 +77,11 @@ export default function RegisterPage() {
         {!success ? (
           <>
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold tracking-tight text-white">
+              {/* Secondary Accent Header Badge */}
+              <div className="inline-block bg-[#ea580c] text-white px-5 py-2 rounded-2xl font-bold text-sm tracking-wide shadow-md shadow-[#ea580c]/20 mb-3">
                 Daftar Anggota
-              </h1>
-              <p className="text-xs text-zinc-400 mt-1">
+              </div>
+              <p className="text-xs text-zinc-400">
                 SMK Kimia PGRI Serang
               </p>
             </div>
