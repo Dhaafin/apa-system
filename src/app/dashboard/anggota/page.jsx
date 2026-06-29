@@ -399,7 +399,7 @@ export default function AnggotaPage() {
           />
         </div>
 
-        <div className="flex gap-4 items-center">
+        <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
           <CustomDropdownWhite
             label="Kelas:"
             options={classes}
