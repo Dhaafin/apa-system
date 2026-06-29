@@ -195,22 +195,23 @@ function RegisterForm({ onSwitch }) {
 
   return (
     <>
-      <div className="mb-6">
+      <div className="mb-3.5">
         <Text variant="h2">Daftar Anggota</Text>
-        <Text variant="body" color="muted" className="mt-1.5">
+        <Text variant="body" color="muted" className="mt-1">
           Buat akun siswa baru untuk Pencinta Alam.
         </Text>
       </div>
 
       {error && <ErrorAlert message={error} />}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <Input
           label="Nama Lengkap"
           placeholder="Masukkan nama lengkap Anda"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
+          className="!gap-1"
         />
         <Input
           label="Email Siswa"
@@ -219,6 +220,7 @@ function RegisterForm({ onSwitch }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          className="!gap-1"
         />
         <Input
           label="Kata Sandi"
@@ -227,6 +229,7 @@ function RegisterForm({ onSwitch }) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          className="!gap-1"
         />
         <CustomDropdown
           label="Kelas"
@@ -236,19 +239,20 @@ function RegisterForm({ onSwitch }) {
           placeholder="Pilih Kelas Anda"
           required
           direction="up"
+          className="!gap-1"
         />
 
         <Button
           type="submit"
           variant="primary"
-          className="w-full py-3.5 mt-1 text-sm font-semibold"
+          className="w-full py-3 mt-1 text-sm font-semibold"
           disabled={loading}
         >
           {loading ? <><Spinner /> Mendaftar...</> : "Buat Akun Siswa"}
         </Button>
       </form>
 
-      <div className="mt-6 text-center">
+      <div className="mt-4 text-center">
         <Text variant="caption" color="muted">
           Sudah punya akun?{" "}
           <button
@@ -271,7 +275,7 @@ export default function AuthPage() {
   const switchToLogin    = () => setActiveTab("login");
 
   return (
-    <div className="min-h-screen flex bg-[#001f18]" style={{ fontFamily: "'Poppins', sans-serif" }}>
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden flex bg-[#001f18]" style={{ fontFamily: "'Poppins', sans-serif" }}>
 
       {/* ══ LEFT PANEL: Cinematic Hero ══ */}
       <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden">
@@ -328,7 +332,7 @@ export default function AuthPage() {
 
       {/* ══ RIGHT PANEL: Auth Forms ══ */}
       <div
-        className="w-full lg:w-[45%] flex items-center justify-center px-6 py-12 relative overflow-hidden"
+        className="w-full lg:w-[45%] lg:h-screen lg:overflow-hidden flex items-center justify-center px-6 py-8 relative overflow-hidden"
         style={{ background: "linear-gradient(145deg, #0d1f2d 0%, #0f2318 40%, #1a1a2e 100%)" }}
       >
         {/* Mesh gradient orbs */}
@@ -351,18 +355,18 @@ export default function AuthPage() {
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full max-w-sm relative z-10"
+          className="w-full max-w-sm relative z-10 flex flex-col justify-center"
         >
           {/* Mobile branding */}
-          <div className="lg:hidden text-center mb-8">
-            <Text variant="badge" className="inline-block bg-[#ea580c]/90 text-white px-3 py-1.5 rounded-full mb-2">
+          <div className="lg:hidden text-center mb-5">
+            <Text variant="badge" className="inline-block bg-[#ea580c]/90 text-white px-3 py-1.5 rounded-full mb-1">
               Pencinta Alam
             </Text>
-            <Text variant="caption" color="muted" className="block mt-1">SMK Kimia PGRI Serang</Text>
+            <Text variant="caption" color="muted" className="block mt-0.5">SMK Kimia PGRI Serang</Text>
           </div>
 
           {/* ── Tab Toggle ── */}
-          <div className="relative flex bg-white/5 border border-white/10 rounded-2xl p-1 mb-8 backdrop-blur-sm">
+          <div className="relative flex bg-white/5 border border-white/10 rounded-2xl p-1 mb-6 backdrop-blur-sm">
             <motion.div
               className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-xl bg-[#ea580c] shadow-lg shadow-[#ea580c]/25"
               animate={{ left: activeTab === "login" ? "4px" : "calc(50%)" }}
@@ -375,7 +379,7 @@ export default function AuthPage() {
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
-                className={`relative z-10 flex-1 py-2.5 rounded-xl transition-colors duration-200 cursor-pointer ${
+                className={`relative z-10 flex-1 py-2 rounded-xl transition-colors duration-200 cursor-pointer ${
                   activeTab === key ? "text-white" : "text-slate-500 hover:text-slate-300"
                 }`}
               >
@@ -387,7 +391,7 @@ export default function AuthPage() {
           </div>
 
           {/* ── Glassmorphism Card ── */}
-          <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-7 shadow-2xl">
+          <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-6 shadow-2xl">
             <AnimatePresence mode="wait">
               {activeTab === "login" ? (
                 <motion.div
@@ -414,7 +418,7 @@ export default function AuthPage() {
           </div>
 
           {/* Bottom tagline */}
-          <Text variant="badge" color="muted" className="block text-center text-slate-600 mt-8">
+          <Text variant="badge" color="muted" className="block text-center text-slate-600 mt-6">
             Lestari Alamku · Jaya Sekolahku
           </Text>
         </motion.div>
