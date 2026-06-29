@@ -1,4 +1,8 @@
-import React, { useEffect, useRef } from "react";
+"use client";
+
+import React, { useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Text from "@/components/atoms/Text";
 
 export default function Modal({
   isOpen,
@@ -6,85 +10,73 @@ export default function Modal({
   title,
   children,
   footer,
-  className = "",
 }) {
-  const modalRef = useRef(null);
-
-  // Close on ESC key press
+  // Handle escape key to close and toggle body scroll lock
   useEffect(() => {
-    function handleKeyDown(event) {
-      if (event.key === "Escape" && isOpen) {
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
         onClose();
       }
-    }
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
-
-  // Prevent scroll when modal is open
-  useEffect(() => {
+    };
     if (isOpen) {
+      document.addEventListener("keydown", handleEscape);
       document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
     }
     return () => {
+      document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
-
-  const handleBackdropClick = (e) => {
-    if (modalRef.current && !modalRef.current.contains(e.target)) {
-      onClose();
-    }
-  };
-
-  if (!isOpen) return null;
+  }, [isOpen, onClose]);
 
   return (
-    <div
-      onClick={handleBackdropClick}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity duration-300 ease-out"
-    >
-      {/* Modal Container */}
-      <div
-        ref={modalRef}
-        className={`w-full max-w-lg bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden transform transition-all duration-300 scale-100 opacity-100 flex flex-col ${className}`}
-      >
-        {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-zinc-900">
-          <h3 className="text-base font-extrabold text-[#002d23] dark:text-white uppercase tracking-wide">
-            {title}
-          </h3>
-          <button
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop Overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={onClose}
-            type="button"
-            className="p-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-400 hover:text-zinc-600 transition-colors cursor-pointer"
+            className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
+          />
+
+          {/* Modal Container */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ type: "spring", duration: 0.4 }}
+            className="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl border border-zinc-100 overflow-hidden flex flex-col z-10"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+            {/* Header */}
+            <div className="p-6 pb-4 border-b border-zinc-100 flex items-center justify-between">
+              <Text variant="h3" className="text-zinc-900 font-extrabold">
+                {title}
+              </Text>
+              <button
+                onClick={onClose}
+                className="w-8 h-8 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-400 hover:text-zinc-650 transition-colors cursor-pointer text-xs font-bold"
+                type="button"
+              >
+                ✕
+              </button>
+            </div>
 
-        {/* Modal Body */}
-        <div className="px-6 py-6 overflow-y-auto max-h-[70vh] text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed scrollbar-thin">
-          {children}
-        </div>
+            {/* Body */}
+            <div className="p-6 overflow-y-auto max-h-[70vh]">
+              {children}
+            </div>
 
-        {/* Modal Footer */}
-        {footer && (
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-900 bg-zinc-50 dark:bg-zinc-900/30">
-            {footer}
-          </div>
-        )}
-      </div>
-    </div>
+            {/* Footer */}
+            {footer && (
+              <div className="p-6 pt-4 border-t border-zinc-100 bg-zinc-50/50 flex justify-end gap-3">
+                {footer}
+              </div>
+            )}
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }
