@@ -16,6 +16,9 @@ export default function AcaraPage() {
   const showFlashMessage = useFlashMessage();
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState("SISWA");
+  const [userId, setUserId] = useState(null);
+  const [actionLoadingId, setActionLoadingId] = useState(null); // to track loading states of individual cards (e.g. Absen / Toggle)
 
   // Create modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,7 +54,65 @@ export default function AcaraPage() {
     }
   };
 
+  const handleStudentAbsen = async (activityId) => {
+    setActionLoadingId(activityId);
+    try {
+      const response = await fetch("/api/activities/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ activityId }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal melakukan absensi.");
+      }
+      showFlashMessage("success", "Absen berhasil! Menunggu persetujuan Guru atau Ketua.");
+      await fetchActivities();
+    } catch (err) {
+      showFlashMessage("error", err.message);
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleToggleAttendance = async (activityId, currentStatus) => {
+    const nextStatus = !currentStatus;
+    setActionLoadingId(activityId);
+    try {
+      const response = await fetch(`/api/activities/${activityId}/toggle-attendance`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attendanceOpen: nextStatus }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal mengubah status absensi.");
+      }
+      showFlashMessage("success", `Absensi berhasil ${nextStatus ? "dibuka" : "ditutup"}!`);
+      await fetchActivities();
+    } catch (err) {
+      showFlashMessage("error", err.message);
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
   useEffect(() => {
+    async function fetchUser() {
+      try {
+        const response = await fetch("/api/auth/me");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.user) {
+            setUserRole(data.user.role || "SISWA");
+            setUserId(data.user.id || null);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchUser();
     fetchActivities();
   }, []);
 
@@ -290,18 +351,20 @@ export default function AcaraPage() {
             </Text>
           </div>
 
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setFormData(EMPTY_FORM);
-              setImageFile(null);
-              setFormError("");
-              setIsModalOpen(true);
-            }}
-            className="py-3 px-6 font-bold shadow-md shadow-[#ea580c]/25 rounded-2xl shrink-0 self-start sm:self-center"
-          >
-            Buat Acara Baru
-          </Button>
+          {userRole !== "SISWA" && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setFormData(EMPTY_FORM);
+                setImageFile(null);
+                setFormError("");
+                setIsModalOpen(true);
+              }}
+              className="py-3 px-6 font-bold shadow-md shadow-[#ea580c]/25 rounded-2xl shrink-0 self-start sm:self-center"
+            >
+              Buat Acara Baru
+            </Button>
+          )}
         </div>
       </div>
 
@@ -364,28 +427,84 @@ export default function AcaraPage() {
 
                     {/* Action buttons */}
                     <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openEdit(activity)}
-                        title="Edit acara"
-                        className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border border-[#002d23]/20 text-[#002d23] hover:bg-[#002d23]/5 transition-colors cursor-pointer"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => openDelete(activity)}
-                        title="Hapus acara"
-                        className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Hapus
-                      </button>
+                      {userRole === "SISWA" ? (
+                        activity.userRegistered ? (
+                          activity.userRegistrationStatus === "PENDING" ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                              ⌛ Pending (Guru/Ketua)
+                            </span>
+                          ) : activity.userRegistrationStatus === "APPROVED" ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                              ✅ Hadir
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-red-500/10 text-red-600 border border-red-500/20">
+                              ❌ Ditolak
+                            </span>
+                          )
+                        ) : activity.attendanceOpen ? (
+                          <Button
+                            variant="secondary"
+                            onClick={() => handleStudentAbsen(activity.id)}
+                            disabled={actionLoadingId === activity.id}
+                            className="py-2 px-4 text-xs font-bold rounded-xl"
+                          >
+                            {actionLoadingId === activity.id ? "Absen..." : "Lakukan Absen"}
+                          </Button>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled
+                            className="px-4 py-2 text-xs font-semibold rounded-xl bg-zinc-100 text-zinc-400 border border-zinc-200 cursor-not-allowed"
+                          >
+                            Absen Ditutup
+                          </button>
+                        )
+                      ) : (
+                        <>
+                          {/* Toggle Attendance status for Guru / Ketua */}
+                          <button
+                            type="button"
+                            onClick={() => handleToggleAttendance(activity.id, activity.attendanceOpen)}
+                            disabled={actionLoadingId === activity.id}
+                            className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border transition-colors cursor-pointer ${
+                              activity.attendanceOpen
+                                ? "border-amber-500/30 text-amber-600 hover:bg-amber-50"
+                                : "border-emerald-500/30 text-emerald-600 hover:bg-emerald-50"
+                            }`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${activity.attendanceOpen ? "bg-amber-500" : "bg-emerald-500"}`} />
+                            {actionLoadingId === activity.id
+                              ? "Proses..."
+                              : activity.attendanceOpen
+                              ? "Tutup Absen"
+                              : "Buka Absen"}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => openEdit(activity)}
+                            title="Edit acara"
+                            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border border-[#002d23]/20 text-[#002d23] hover:bg-[#002d23]/5 transition-colors cursor-pointer"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openDelete(activity)}
+                            title="Hapus acara"
+                            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Hapus
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>

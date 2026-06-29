@@ -53,6 +53,14 @@ export async function POST(request) {
       );
     }
 
+    // If registering user is SISWA, verify if attendance is open
+    if (session.role === "SISWA" && !targetActivity.attendanceOpen) {
+      return NextResponse.json(
+        { success: false, message: "Absensi untuk kegiatan ini belum dibuka atau sudah ditutup." },
+        { status: 400 }
+      );
+    }
+
     // Verify student exists
     const targetUser = await db.query.users.findFirst({
       where: and(eq(users.id, Number(userId)), eq(users.role, "SISWA")),

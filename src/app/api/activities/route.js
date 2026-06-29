@@ -8,6 +8,16 @@ import { cookies } from "next/headers";
 // Fetch all activities
 export async function GET() {
   try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("session");
+    let currentUserId = null;
+    if (sessionCookie) {
+      try {
+        const session = JSON.parse(sessionCookie.value);
+        currentUserId = session.id;
+      } catch (e) {}
+    }
+
     // Get all activities and count of participants
     const allActivities = await db
       .select({
@@ -16,6 +26,7 @@ export async function GET() {
         description: activities.description,
         imageUrl: activities.imageUrl,
         date: activities.date,
+        attendanceOpen: activities.attendanceOpen,
         createdAt: activities.createdAt,
         participantCount: sql`count(${activityParticipants.userId})::int`.as("participant_count"),
       })
@@ -24,9 +35,29 @@ export async function GET() {
       .groupBy(activities.id)
       .orderBy(activities.date);
 
+    let userRegistrations = [];
+    if (currentUserId) {
+      userRegistrations = await db
+        .select({
+          activityId: activityParticipants.activityId,
+          status: activityParticipants.status,
+        })
+        .from(activityParticipants)
+        .where(eq(activityParticipants.userId, currentUserId));
+    }
+
+    const activitiesWithReg = allActivities.map((act) => {
+      const reg = userRegistrations.find((r) => r.activityId === act.id);
+      return {
+        ...act,
+        userRegistered: !!reg,
+        userRegistrationStatus: reg ? reg.status : null,
+      };
+    });
+
     return NextResponse.json({
       success: true,
-      activities: allActivities,
+      activities: activitiesWithReg,
     });
   } catch (error) {
     console.error("Fetch activities error:", error);

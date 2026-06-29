@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, pgEnum, integer } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, pgEnum, integer, boolean } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("user_role", ["GURU", "SISWA", "KETUA"]);
 export const statusEnum = pgEnum("user_status", ["PENDING", "APPROVED", "REJECTED"]);
@@ -24,6 +24,7 @@ export const activities = pgTable("activities", {
   description: text("description").notNull(),
   imageUrl: text("image_url"),
   date: timestamp("date").notNull(),
+  attendanceOpen: boolean("attendance_open").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
