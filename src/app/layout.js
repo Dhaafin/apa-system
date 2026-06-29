@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
       lang="id"
       className={`${poppins.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className={`min-h-full flex flex-col ${poppins.className}`}>{children}</body>
     </html>
   );
 }

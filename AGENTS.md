@@ -133,5 +133,16 @@ A stylized overlay modal card with transition animations.
   - `children`: content body
   - `footer`: custom action footer buttons (ReactNode)
 
+### Atom: Text (`src/components/atoms/Text.jsx` or `@/components/atoms/Text`)
+Reusable typography atom that explicitly enforces the Poppins font. Use this for all text in the UI to guarantee consistent font rendering.
+- **Props**:
+  - `variant`: `'h1'` | `'h2'` | `'h3'` | `'h4'` | `'body'` | `'caption'` | `'label'` | `'badge'`
+  - `color`: `'primary'` (white) | `'muted'` (slate-400) | `'accent'` (orange) | `'danger'` (red) | `'success'` (emerald) | `'inherit'`
+  - `as`: override rendered HTML tag (e.g. `'span'`, `'div'`, `'h1'`)
+  - `className`: additional Tailwind classes
+- **Rendering defaults**:
+  - `h1`→`<h1>`, `h2`→`<h2>`, `h3`→`<h3>`, `h4`→`<h4>`, `body`→`<p>`, `caption`→`<p>`, `label`→`<span>`, `badge`→`<span>`
+
+
 
 
