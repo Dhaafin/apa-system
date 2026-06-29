@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Text from "@/components/atoms/Text";
 
@@ -24,7 +25,37 @@ export default function DatePicker({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
+  const [mounted, setMounted] = useState(false);
+  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
   const dropdownRef = useRef(null);
+  const triggerRef = useRef(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const updateCoords = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setCoords({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      updateCoords();
+      window.addEventListener("scroll", updateCoords);
+      window.addEventListener("resize", updateCoords);
+    }
+    return () => {
+      window.removeEventListener("scroll", updateCoords);
+      window.removeEventListener("resize", updateCoords);
+    };
+  }, [isOpen]);
 
   // Initialize viewDate when value changes
   useEffect(() => {
@@ -110,6 +141,7 @@ export default function DatePicker({
 
       {/* Selector Trigger Button */}
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full px-4 py-3 pl-11 text-left text-sm rounded-xl border flex items-center justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#ea580c] transition-all relative ${isDarkTheme
@@ -129,81 +161,89 @@ export default function DatePicker({
         </div>
       </button>
 
-      {/* Custom Calendar Popover Menu */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -8 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-            className={`absolute left-0 right-0 z-50 mt-1 p-4 rounded-2xl border shadow-2xl flex flex-col gap-3 min-w-[280px] top-[calc(100%+4px)] ${isDarkTheme
-                ? "bg-[#00241d] border-emerald-500/10 text-white shadow-emerald-950/20"
-                : "bg-white border-zinc-200 text-zinc-800 shadow-zinc-200/50"
-              }`}
-          >
-            {/* Header controls */}
-            <div className="flex items-center justify-between">
-              <button
-                type="button"
-                onClick={prevMonth}
-                className={`p-1.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer ${isDarkTheme ? "text-zinc-300 hover:text-white" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"}`}
-              >
-                ✕ {/* Left Arrow */}
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <Text variant="body" className="font-bold text-xs">
-                {MONTH_NAMES[month]} {year}
-              </Text>
-              <button
-                type="button"
-                onClick={nextMonth}
-                className={`p-1.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer ${isDarkTheme ? "text-zinc-300 hover:text-white" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"}`}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
+      {/* Custom Calendar Popover Menu via React Portal */}
+      {mounted && createPortal(
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -8 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className={`absolute z-[9999] p-4 rounded-2xl border shadow-2xl flex flex-col gap-3 min-w-[280px] ${isDarkTheme
+                  ? "bg-[#00241d] border-emerald-500/10 text-white shadow-emerald-950/20"
+                  : "bg-white border-zinc-200 text-zinc-800 shadow-zinc-200/50"
+                }`}
+              style={{
+                position: "absolute",
+                top: coords.top + 4,
+                left: coords.left,
+                width: Math.max(coords.width, 280),
+              }}
+            >
+              {/* Header controls */}
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={prevMonth}
+                  className={`p-1.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer ${isDarkTheme ? "text-zinc-300 hover:text-white" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"}`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <Text variant="body" className="font-bold text-xs">
+                  {MONTH_NAMES[month]} {year}
+                </Text>
+                <button
+                  type="button"
+                  onClick={nextMonth}
+                  className={`p-1.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer ${isDarkTheme ? "text-zinc-300 hover:text-white" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"}`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
 
-            {/* Week days labels */}
-            <div className="grid grid-cols-7 gap-1 text-center">
-              {WEEK_DAYS.map((day) => (
-                <span key={day} className={`text-[10px] font-extrabold uppercase ${isDarkTheme ? "text-zinc-500" : "text-zinc-400"}`}>
-                  {day}
-                </span>
-              ))}
-            </div>
-
-            {/* Days grid selection */}
-            <div className="grid grid-cols-7 gap-1">
-              {daysGrid.map((day, idx) => {
-                if (day === null) {
-                  return <div key={`empty-${idx}`} />;
-                }
-                const active = isSelected(day);
-                return (
-                  <button
-                    key={`day-${day}`}
-                    type="button"
-                    onClick={() => handleDateSelect(day)}
-                    className={`w-full aspect-square text-xs font-bold rounded-xl transition-all flex items-center justify-center cursor-pointer ${active
-                        ? "bg-[#ea580c] text-white shadow-md shadow-[#ea580c]/20"
-                        : isDarkTheme
-                          ? "hover:bg-emerald-500/10 text-zinc-200 hover:text-white"
-                          : "hover:bg-zinc-100 text-zinc-700 hover:text-zinc-900"
-                      }`}
-                  >
+              {/* Week days labels */}
+              <div className="grid grid-cols-7 gap-1 text-center">
+                {WEEK_DAYS.map((day) => (
+                  <span key={day} className={`text-[10px] font-extrabold uppercase ${isDarkTheme ? "text-zinc-500" : "text-zinc-400"}`}>
                     {day}
-                  </button>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                  </span>
+                ))}
+              </div>
+
+              {/* Days grid selection */}
+              <div className="grid grid-cols-7 gap-1">
+                {daysGrid.map((day, idx) => {
+                  if (day === null) {
+                    return <div key={`empty-${idx}`} />;
+                  }
+                  const active = isSelected(day);
+                  return (
+                    <button
+                      key={`day-${day}`}
+                      type="button"
+                      onClick={() => handleDateSelect(day)}
+                      className={`w-full aspect-square text-xs font-bold rounded-xl transition-all flex items-center justify-center cursor-pointer ${active
+                          ? "bg-[#ea580c] text-white shadow-md shadow-[#ea580c]/20"
+                          : isDarkTheme
+                            ? "hover:bg-emerald-500/10 text-zinc-200 hover:text-white"
+                            : "hover:bg-zinc-100 text-zinc-700 hover:text-zinc-900"
+                        }`}
+                    >
+                      {day}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       {error && (
         <span className="text-xs text-red-500 font-medium mt-0.5">{error}</span>

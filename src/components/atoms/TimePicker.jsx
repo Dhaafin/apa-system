@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Text from "@/components/atoms/Text";
 
@@ -21,7 +22,37 @@ export default function TimePicker({
   const [isOpen, setIsOpen] = useState(false);
   const [hour, setHour] = useState("12");
   const [minute, setMinute] = useState("00");
+  const [mounted, setMounted] = useState(false);
+  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
   const dropdownRef = useRef(null);
+  const triggerRef = useRef(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const updateCoords = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setCoords({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      updateCoords();
+      window.addEventListener("scroll", updateCoords);
+      window.addEventListener("resize", updateCoords);
+    }
+    return () => {
+      window.removeEventListener("scroll", updateCoords);
+      window.removeEventListener("resize", updateCoords);
+    };
+  }, [isOpen]);
 
   // Sync state with selected value prop
   useEffect(() => {
@@ -64,6 +95,7 @@ export default function TimePicker({
 
       {/* Time Picker Button Trigger */}
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full px-4 py-3 pl-11 text-left text-sm rounded-xl border flex items-center justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#ea580c] transition-all relative ${
@@ -84,76 +116,85 @@ export default function TimePicker({
         </div>
       </button>
 
-      {/* Time Selection Popover */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -8 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-            className={`absolute left-0 right-0 z-50 mt-1 p-4 rounded-2xl border shadow-2xl flex flex-col gap-3 min-w-[200px] top-[calc(100%+4px)] ${
-              isDarkTheme
-                ? "bg-[#00241d] border-emerald-500/10 text-white shadow-emerald-950/20"
-                : "bg-white border-zinc-200 text-zinc-800 shadow-zinc-200/50"
-            }`}
-          >
-            {/* Scrollable selectors wrapper */}
-            <div className="grid grid-cols-2 gap-3 h-40">
-              {/* Hours Column */}
-              <div className="flex flex-col gap-1 overflow-y-auto pr-1">
-                <Text variant="caption" className="text-center font-bold pb-1 block border-b border-white/5 uppercase tracking-wider text-[9px] text-zinc-400">Jam</Text>
-                {HOURS.map((h) => (
-                  <button
-                    key={`h-${h}`}
-                    type="button"
-                    onClick={() => setHour(h)}
-                    className={`w-full py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer text-center ${
-                      hour === h
-                        ? "bg-[#ea580c] text-white"
-                        : isDarkTheme
-                        ? "hover:bg-emerald-500/15 text-zinc-300"
-                        : "hover:bg-zinc-100 text-zinc-700"
-                    }`}
-                  >
-                    {h}
-                  </button>
-                ))}
-              </div>
-
-              {/* Minutes Column */}
-              <div className="flex flex-col gap-1 overflow-y-auto pr-1">
-                <Text variant="caption" className="text-center font-bold pb-1 block border-b border-white/5 uppercase tracking-wider text-[9px] text-zinc-400">Menit</Text>
-                {MINUTES.map((m) => (
-                  <button
-                    key={`m-${m}`}
-                    type="button"
-                    onClick={() => setMinute(m)}
-                    className={`w-full py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer text-center ${
-                      minute === m
-                        ? "bg-[#ea580c] text-white"
-                        : isDarkTheme
-                        ? "hover:bg-emerald-500/15 text-zinc-300"
-                        : "hover:bg-zinc-100 text-zinc-700"
-                    }`}
-                  >
-                    {m}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Select confirmation button */}
-            <button
-              type="button"
-              onClick={handleSelectTime}
-              className="w-full py-2 bg-[#ea580c] hover:bg-[#ea580c]/90 text-white font-bold text-xs rounded-xl shadow-md cursor-pointer transition-all text-center"
+      {/* Time Selection Popover via React Portal */}
+      {mounted && createPortal(
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -8 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className={`absolute z-[9999] p-4 rounded-2xl border shadow-2xl flex flex-col gap-3 min-w-[200px] ${
+                isDarkTheme
+                  ? "bg-[#00241d] border-emerald-500/10 text-white shadow-emerald-950/20"
+                  : "bg-white border-zinc-200 text-zinc-800 shadow-zinc-200/50"
+              }`}
+              style={{
+                position: "absolute",
+                top: coords.top + 4,
+                left: coords.left,
+                width: coords.width,
+              }}
             >
-              Pilih Waktu ({hour}:{minute})
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {/* Scrollable selectors wrapper */}
+              <div className="grid grid-cols-2 gap-3 h-40">
+                {/* Hours Column */}
+                <div className="flex flex-col gap-1 overflow-y-auto pr-1">
+                  <Text variant="caption" className="text-center font-bold pb-1 block border-b border-white/5 uppercase tracking-wider text-[9px] text-zinc-400">Jam</Text>
+                  {HOURS.map((h) => (
+                    <button
+                      key={`h-${h}`}
+                      type="button"
+                      onClick={() => setHour(h)}
+                      className={`w-full py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer text-center ${
+                        hour === h
+                          ? "bg-[#ea580c] text-white"
+                          : isDarkTheme
+                          ? "hover:bg-emerald-500/15 text-zinc-300"
+                          : "hover:bg-zinc-100 text-zinc-700"
+                      }`}
+                    >
+                      {h}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Minutes Column */}
+                <div className="flex flex-col gap-1 overflow-y-auto pr-1">
+                  <Text variant="caption" className="text-center font-bold pb-1 block border-b border-white/5 uppercase tracking-wider text-[9px] text-zinc-400">Menit</Text>
+                  {MINUTES.map((m) => (
+                    <button
+                      key={`m-${m}`}
+                      type="button"
+                      onClick={() => setMinute(m)}
+                      className={`w-full py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer text-center ${
+                        minute === m
+                          ? "bg-[#ea580c] text-white"
+                          : isDarkTheme
+                          ? "hover:bg-emerald-500/15 text-zinc-300"
+                          : "hover:bg-zinc-100 text-zinc-700"
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Select confirmation button */}
+              <button
+                type="button"
+                onClick={handleSelectTime}
+                className="w-full py-2 bg-[#ea580c] hover:bg-[#ea580c]/90 text-white font-bold text-xs rounded-xl shadow-md cursor-pointer transition-all text-center"
+              >
+                Pilih Waktu ({hour}:{minute})
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       {error && (
         <span className="text-xs text-red-500 font-medium mt-0.5">{error}</span>
