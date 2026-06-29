@@ -65,7 +65,7 @@ export default function CustomDropdown({
 
       {/* Floating Options Menu with smooth transition animations */}
       <div
-        className={`absolute left-0 right-0 z-50 max-h-60 overflow-y-auto rounded-xl border border-zinc-200 bg-white shadow-xl dark:bg-zinc-950 dark:border-zinc-800 scrollbar-thin transition-all duration-200 ease-out ${positionClass} ${
+        className={`absolute left-0 right-0 z-50 max-h-60 overflow-y-auto rounded-xl border border-zinc-200 bg-white shadow-xl dark:bg-zinc-950 dark:border-zinc-800 transition-all duration-200 ease-out ${positionClass} ${
           isOpen
             ? "opacity-100 scale-100 pointer-events-auto"
             : "opacity-0 scale-95 pointer-events-none"
