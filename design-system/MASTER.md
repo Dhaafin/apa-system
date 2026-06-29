@@ -15,7 +15,7 @@ This document outlines the visual identity and design tokens for the SIPA Advent
 
 ## ✍️ Typography
 
-- **Heading & Body Font**: **Plus Jakarta Sans** (Sleek, geometric, high-contrast weight variation)
+- **Heading & Body Font**: **Poppins** (Geometric Sans-serif, extremely popular for premium modern aesthetic layouts)
 - **Heading Weight**: `font-black` (`900` weight) or `font-extrabold` (`800` weight)
 - **Tracking**: `tracking-tight` for headings, `tracking-widest` for uppercase subheaders.
 
