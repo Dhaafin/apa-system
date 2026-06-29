@@ -95,8 +95,6 @@ export default function DashboardLayout({ children }) {
     { name: "Manajemen Anggota", path: "/dashboard/anggota", icon: Icons.anggota },
     { name: "Jadwal & Acara", path: "/dashboard/acara", icon: Icons.acara },
     { name: "Log Ekspedisi", path: "/dashboard/ekspedisi", icon: Icons.ekspedisi },
-    { name: "Galeri Foto", path: "/dashboard/galeri", icon: Icons.galeri },
-    { name: "Pengaturan", path: "/dashboard/pengaturan", icon: Icons.pengaturan },
   ];
 
   const filteredNavItems = navItems.filter((item) => {
