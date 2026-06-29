@@ -6,6 +6,8 @@ import Modal from "@/components/atoms/Modal";
 import Input from "@/components/atoms/Input";
 import DatePicker from "@/components/atoms/DatePicker";
 import TimePicker from "@/components/atoms/TimePicker";
+import Text from "@/components/atoms/Text";
+import Image from "next/image";
 
 export default function AcaraPage() {
   const [activities, setActivities] = useState([]);
@@ -106,24 +108,42 @@ export default function AcaraPage() {
 
   return (
     <div className="flex-1 flex flex-col">
-      {/* Header Block */}
-      <div className="flex items-center justify-between mb-8 bg-white border border-zinc-200/85 p-6 rounded-3xl shadow-sm">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[#004d3d] text-2xl font-bold">📅</span>
-            <h1 className="text-2xl font-extrabold text-[#002d23]">Jadwal & Acara</h1>
-          </div>
-          <p className="text-sm text-zinc-500">
-            Daftar rencana petualangan, latihan, dan agenda organisasi KAPALA
-          </p>
+      {/* ══ IMMERSIVE HERO BANNER CARD ══ */}
+      <div className="w-full min-h-[180px] sm:h-[200px] bg-zinc-950 rounded-[32px] overflow-hidden shadow-xl shadow-emerald-950/10 border border-white/5 relative flex items-center mb-8">
+        
+        {/* Landscape backdrop hero image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/dashboard-banner.png"
+            alt="Matahari terbit di puncak gunung"
+            fill
+            className="object-cover opacity-85"
+            priority
+          />
+          {/* Subtle gradient overlays for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#001712] via-[#001712]/95 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#001712]/50 to-transparent" />
         </div>
-        <Button
-          variant="primary"
-          onClick={() => setIsModalOpen(true)}
-          className="bg-[#004d3d] hover:bg-[#0b5c46] cursor-pointer"
-        >
-          <span>+</span> Buat Acara Baru
-        </Button>
+
+        {/* Content wrapper */}
+        <div className="relative z-10 w-full p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <Text variant="h2" className="text-white font-extrabold tracking-tight font-heading">
+              Jadwal & Acara
+            </Text>
+            <Text variant="body" color="muted" className="text-slate-300 max-w-lg">
+              Daftar rencana petualangan, latihan, dan agenda organisasi KAPALA.
+            </Text>
+          </div>
+
+          <Button
+            variant="secondary"
+            onClick={() => setIsModalOpen(true)}
+            className="py-3 px-6 font-bold shadow-md shadow-[#ea580c]/25 rounded-2xl shrink-0 self-start sm:self-center"
+          >
+            Buat Acara Baru
+          </Button>
+        </div>
       </div>
 
       {/* Activities Grid */}
