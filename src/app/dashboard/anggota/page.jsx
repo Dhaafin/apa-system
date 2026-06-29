@@ -7,6 +7,13 @@ import Text from "@/components/atoms/Text";
 import Image from "next/image";
 import Modal from "@/components/atoms/Modal";
 import Input from "@/components/atoms/Input";
+import CustomDropdown from "@/components/atoms/CustomDropdown";
+
+const KELAS_OPTIONS = [
+  "X KIMIA 1", "X KIMIA 2", "X KIMIA 3", "X KIMIA 4",
+  "XI KIMIA 1", "XI KIMIA 2",
+  "XII KIMIA 1", "XII KIMIA 2",
+];
 
 export default function AnggotaPage() {
   const [students, setStudents] = useState([]);
@@ -340,8 +347,9 @@ export default function AnggotaPage() {
       >
         <form onSubmit={handleCreateMember} className="space-y-4">
           {formError && (
-            <div className="p-3.5 rounded-2xl bg-red-50 border border-red-100 text-red-600 text-xs font-bold">
-              ⚠️ {formError}
+            <div className="p-3.5 rounded-2xl bg-red-950/40 border border-red-900/50 text-red-400 text-xs font-bold flex items-center gap-2">
+              <span>⚠️</span>
+              <span>{formError}</span>
             </div>
           )}
           <Input
@@ -350,6 +358,12 @@ export default function AnggotaPage() {
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
+            inputClassName="!bg-black/20 !border-white/10 !text-white focus:!ring-[#ea580c] placeholder:!text-zinc-500"
+            icon={
+              <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            }
           />
           <Input
             label="Alamat Email"
@@ -358,6 +372,12 @@ export default function AnggotaPage() {
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             required
+            inputClassName="!bg-black/20 !border-white/10 !text-white focus:!ring-[#ea580c] placeholder:!text-zinc-500"
+            icon={
+              <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            }
           />
           <Input
             label="Password Akun"
@@ -366,12 +386,21 @@ export default function AnggotaPage() {
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             required
+            inputClassName="!bg-black/20 !border-white/10 !text-white focus:!ring-[#ea580c] placeholder:!text-zinc-500"
+            icon={
+              <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            }
           />
-          <Input
+          <CustomDropdown
             label="Kelas"
-            placeholder="contoh: XI RPL 1, XII Kimia 2..."
+            options={KELAS_OPTIONS}
             value={formData.className}
-            onChange={(e) => setFormData({ ...formData, className: e.target.value })}
+            onChange={(val) => setFormData({ ...formData, className: val })}
+            placeholder="Pilih kelas siswa..."
+            required
+            direction="up"
           />
         </form>
       </Modal>

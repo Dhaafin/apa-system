@@ -47,16 +47,20 @@ export default function Modal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ type: "spring", duration: 0.4 }}
-            className="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl border border-zinc-100 overflow-hidden flex flex-col z-10"
+            className="relative w-full max-w-lg bg-[#001c16] rounded-[32px] shadow-2xl border border-emerald-500/10 overflow-hidden flex flex-col z-10 text-white"
           >
+            {/* Decorative background gradients */}
+            <div className="absolute -top-10 -right-10 w-28 h-28 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-orange-500/5 rounded-full blur-2xl pointer-events-none" />
+
             {/* Header */}
-            <div className="p-6 pb-4 border-b border-zinc-100 flex items-center justify-between">
-              <Text variant="h3" className="text-zinc-900 font-extrabold">
+            <div className="p-6 pb-4 border-b border-white/5 flex items-center justify-between relative z-10">
+              <Text variant="h3" className="text-white font-extrabold">
                 {title}
               </Text>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-400 hover:text-zinc-650 transition-colors cursor-pointer text-xs font-bold"
+                className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer text-xs font-bold"
                 type="button"
               >
                 ✕
@@ -64,13 +68,13 @@ export default function Modal({
             </div>
 
             {/* Body */}
-            <div className="p-6 overflow-y-auto max-h-[70vh]">
+            <div className="p-6 overflow-y-auto max-h-[70vh] relative z-10">
               {children}
             </div>
 
             {/* Footer */}
             {footer && (
-              <div className="p-6 pt-4 border-t border-zinc-100 bg-zinc-50/50 flex justify-end gap-3">
+              <div className="p-6 pt-4 border-t border-white/5 bg-black/20 flex justify-end gap-3 relative z-10">
                 {footer}
               </div>
             )}

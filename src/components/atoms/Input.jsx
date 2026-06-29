@@ -10,6 +10,8 @@ export default function Input({
   error,
   className = "",
   id,
+  icon,
+  inputClassName = "",
   ...props
 }) {
   const inputId = id || `input-${label ? label.toLowerCase().replace(/\s+/g, "-") : "default"}`;
@@ -25,18 +27,25 @@ export default function Input({
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
-      <input
-        id={inputId}
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        required={required}
-        className={`w-full px-4 py-3 text-sm rounded-xl border bg-white text-zinc-900 border-zinc-200 focus:outline-none focus:ring-2 focus:ring-[#004d3d] focus:border-transparent transition-all placeholder:text-zinc-400 dark:bg-zinc-950 dark:text-white dark:border-zinc-800 ${
-          error ? "border-red-500 focus:ring-red-500" : ""
-        }`}
-        {...props}
-      />
+      <div className="relative w-full">
+        {icon && (
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 select-none pointer-events-none flex items-center justify-center">
+            {icon}
+          </span>
+        )}
+        <input
+          id={inputId}
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          required={required}
+          className={`w-full ${icon ? "pl-11" : "px-4"} py-3 text-sm rounded-xl border bg-white text-zinc-900 border-zinc-200 focus:outline-none focus:ring-2 focus:ring-[#004d3d] focus:border-transparent transition-all placeholder:text-zinc-400 dark:bg-zinc-950 dark:text-white dark:border-zinc-800 ${
+            error ? "border-red-500 focus:ring-red-500" : ""
+          } ${inputClassName}`}
+          {...props}
+        />
+      </div>
       {error && (
         <span className="text-xs text-red-500 font-medium mt-0.5">{error}</span>
       )}
